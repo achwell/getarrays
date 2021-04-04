@@ -14,6 +14,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import javax.validation.constraints.Email;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +28,10 @@ import java.util.List;
 
 import static net.axelwulff.usermanagement.constant.FileConstant.*;
 import static net.axelwulff.usermanagement.constant.SecurityConstant.JWT_TOKEN_HEADER;
+import static net.axelwulff.usermanagement.constant.SecurityConstant.TOKEN_PREFIX;
+import static org.apache.commons.lang3.StringUtils.startsWith;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.IMAGE_JPEG_VALUE;
@@ -54,13 +62,27 @@ public class UserResource extends ExceptionHandling {
         return new ResponseEntity<>(loginUser, jwtHeader, OK);
     }
 
+    @GetMapping("/token/refresh")
+    public ResponseEntity<String> refreshAuthenticationToken(HttpServletRequest request, HttpServletResponse response) {
+        String authToken = request.getHeader(AUTHORIZATION);
+        String token = authToken;
+        if(startsWith(authToken, TOKEN_PREFIX)) {
+            token = trimToEmpty(authToken.replaceFirst(TOKEN_PREFIX, ""));
+            if(jwtTokenProvider.canTokenBeRefreshed(token)) {
+                token = jwtTokenProvider.refreshToken(token);
+                response.addHeader(AUTHORIZATION, TOKEN_PREFIX + token);
+            }
+        }
+        return ResponseEntity.badRequest().body(null);
+    }
+
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody User user) throws UserNotFoundException, EmailExistException, UsernameExistException {
+    public ResponseEntity<User> register(@Valid @RequestBody User user) throws UserNotFoundException, EmailExistException, UsernameExistException {
         User newUser = userService.register(user.getFirstName(), user.getMiddleName(), user.getLastName(), user.getUsername(), user.getEmail());
         return new ResponseEntity<>(newUser, CREATED);
     }
 
-    @PostMapping("/add")
+    @PostMapping
     public ResponseEntity<User> addNewUser(@RequestParam("firstName") String firstName,
                                            @RequestParam("middleName") String middleName,
                                            @RequestParam("lastName") String lastName,
@@ -74,7 +96,7 @@ public class UserResource extends ExceptionHandling {
         return new ResponseEntity<>(newUser, CREATED);
     }
 
-    @PostMapping("/update")
+    @PutMapping
     public ResponseEntity<User> update(@RequestParam("currentUsername") String currentUsername,
                                        @RequestParam("firstName") String firstName,
                                        @RequestParam("middleName") String middleName,
@@ -89,25 +111,25 @@ public class UserResource extends ExceptionHandling {
         return new ResponseEntity<>(updatedUser, OK);
     }
 
-    @GetMapping("/find/{username}")
+    @GetMapping("/{username}")
     public ResponseEntity<User> getUser(@PathVariable("username") String username) {
         User user = userService.findUserByUsername(username);
         return new ResponseEntity<>(user, OK);
     }
 
-    @GetMapping("/list")
+    @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getUsers();
         return new ResponseEntity<>(users, OK);
     }
 
     @GetMapping("/resetpassword/{email}")
-    public ResponseEntity<HttpResponse> resetPassword(@PathVariable("email") String email) throws EmailNotFoundException {
+    public ResponseEntity<HttpResponse> resetPassword(@Email @PathVariable("email") String email) throws EmailNotFoundException {
         userService.resetPassword(email);
         return response(OK, EMAIL_SENT + email);
     }
 
-    @DeleteMapping("/delete/{username}")
+    @DeleteMapping("/{username}")
     @PreAuthorize("hasAnyAuthority('user:delete')")
     public ResponseEntity<HttpResponse> deleteUser(@PathVariable("username") String username) throws IOException {
         userService.deleteUser(username);

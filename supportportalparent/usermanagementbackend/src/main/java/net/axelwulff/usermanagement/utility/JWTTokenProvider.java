@@ -88,4 +88,19 @@ public class JWTTokenProvider {
     private String[] getClaimsFromUser(UserDetails user) {
         return user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toArray(String[]::new);
     }
+
+    public boolean canTokenBeRefreshed(String token) {
+        return isTokenExpired(getJWTVerifier(), token);
+    }
+
+    public String refreshToken(String token) {
+        return JWT.create()
+                .withIssuer(SITE_NAME)
+                .withAudience(SITE_ADMINISTRATION)
+                .withIssuedAt(new Date())
+                .withSubject(getSubject(token))
+                .withArrayClaim(AUTHORITIES, getClaimsFromToken(token))
+                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .sign(HMAC512(secret.getBytes()));
+    }
 }
