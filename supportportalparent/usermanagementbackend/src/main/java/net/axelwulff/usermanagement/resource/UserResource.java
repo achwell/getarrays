@@ -12,21 +12,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 
-import static net.axelwulff.usermanagement.constant.FileConstant.*;
 import static net.axelwulff.usermanagement.constant.SecurityConstant.JWT_TOKEN_HEADER;
 import static net.axelwulff.usermanagement.constant.SecurityConstant.TOKEN_PREFIX;
 import static org.apache.commons.lang3.StringUtils.startsWith;
@@ -34,7 +26,6 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.MediaType.IMAGE_JPEG_VALUE;
 
 @RestController
 @RequestMapping(path = {"/", "/user"})
@@ -90,9 +81,8 @@ public class UserResource extends ExceptionHandling {
                                            @RequestParam("email") String email,
                                            @RequestParam("role") String role,
                                            @RequestParam("isActive") String isActive,
-                                           @RequestParam("isNonLocked") String isNonLocked,
-                                           @RequestParam(value = "profileImage", required = false) MultipartFile profileImage) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException, NotAnImageFileException {
-        User newUser = userService.addNewUser(firstName, middleName, lastName, username, email, role, Boolean.parseBoolean(isNonLocked), Boolean.parseBoolean(isActive), profileImage);
+                                           @RequestParam("isNonLocked") String isNonLocked) throws UserNotFoundException, UsernameExistException, EmailExistException {
+        User newUser = userService.addNewUser(firstName, middleName, lastName, username, email, role, Boolean.parseBoolean(isNonLocked), Boolean.parseBoolean(isActive));
         return new ResponseEntity<>(newUser, CREATED);
     }
 
@@ -105,9 +95,8 @@ public class UserResource extends ExceptionHandling {
                                        @RequestParam("email") String email,
                                        @RequestParam("role") String role,
                                        @RequestParam("isActive") String isActive,
-                                       @RequestParam("isNonLocked") String isNonLocked,
-                                       @RequestParam(value = "profileImage", required = false) MultipartFile profileImage) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException, NotAnImageFileException {
-        User updatedUser = userService.updateUser(currentUsername, firstName, middleName, lastName, username, email, role, Boolean.parseBoolean(isNonLocked), Boolean.parseBoolean(isActive), profileImage);
+                                       @RequestParam("isNonLocked") String isNonLocked) throws UserNotFoundException, UsernameExistException, EmailExistException {
+        User updatedUser = userService.updateUser(currentUsername, firstName, middleName, lastName, username, email, role, Boolean.parseBoolean(isNonLocked), Boolean.parseBoolean(isActive));
         return new ResponseEntity<>(updatedUser, OK);
     }
 
@@ -131,34 +120,9 @@ public class UserResource extends ExceptionHandling {
 
     @DeleteMapping("/{username}")
     @PreAuthorize("hasAnyAuthority('user:delete')")
-    public ResponseEntity<HttpResponse> deleteUser(@PathVariable("username") String username) throws IOException {
+    public ResponseEntity<HttpResponse> deleteUser(@PathVariable("username") String username) {
         userService.deleteUser(username);
         return response(OK, USER_DELETED_SUCCESSFULLY);
-    }
-
-    @PostMapping("/updateProfileImage")
-    public ResponseEntity<User> updateProfileImage(@RequestParam("username") String username, @RequestParam(value = "profileImage") MultipartFile profileImage) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException, NotAnImageFileException {
-        User user = userService.updateProfileImage(username, profileImage);
-        return new ResponseEntity<>(user, OK);
-    }
-
-    @GetMapping(path = "/image/{username}/{fileName}", produces = IMAGE_JPEG_VALUE)
-    public byte[] getProfileImage(@PathVariable("username") String username, @PathVariable("fileName") String fileName) throws IOException {
-        return Files.readAllBytes(Paths.get(USER_FOLDER + username + FORWARD_SLASH + fileName));
-    }
-
-    @GetMapping(path = "/image/profile/{username}", produces = IMAGE_JPEG_VALUE)
-    public byte[] getTempProfileImage(@PathVariable("username") String username) throws IOException {
-        URL url = new URL(TEMP_PROFILE_IMAGE_BASE_URL + username);
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        try (InputStream inputStream = url.openStream()) {
-            int bytesRead;
-            byte[] chunk = new byte[1024];
-            while ((bytesRead = inputStream.read(chunk)) > 0) {
-                byteArrayOutputStream.write(chunk, 0, bytesRead);
-            }
-        }
-        return byteArrayOutputStream.toByteArray();
     }
 
     private ResponseEntity<HttpResponse> response(HttpStatus httpStatus, String message) {

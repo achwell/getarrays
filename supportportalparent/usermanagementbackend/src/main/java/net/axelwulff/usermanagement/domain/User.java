@@ -37,8 +37,6 @@ public class User implements Serializable {
     @Column(nullable = false, unique = true)
     private String email;
 
-    private String profileImageUrl;
-
     private LocalDateTime lastLoginDate;
 
     private LocalDateTime lastLoginDateDisplay;
@@ -60,7 +58,7 @@ public class User implements Serializable {
     public User() {
     }
 
-    public User(Long id, String userId, String firstName, String middleName, String lastName, String username, String password, String email, String profileImageUrl, LocalDateTime lastLoginDate, LocalDateTime lastLoginDateDisplay, LocalDate joinDate, Collection<Role> roles, boolean isActive, boolean isNotLocked) {
+    public User(Long id, String userId, String firstName, String middleName, String lastName, String username, String password, String email, LocalDateTime lastLoginDate, LocalDateTime lastLoginDateDisplay, LocalDate joinDate, Collection<Role> roles, boolean isActive, boolean isNotLocked) {
         this.id = id;
         this.userId = userId;
         this.firstName = firstName;
@@ -69,7 +67,6 @@ public class User implements Serializable {
         this.username = username;
         this.password = password;
         this.email = email;
-        this.profileImageUrl = profileImageUrl;
         this.lastLoginDate = lastLoginDate;
         this.lastLoginDateDisplay = lastLoginDateDisplay;
         this.joinDate = joinDate;
@@ -140,14 +137,6 @@ public class User implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getProfileImageUrl() {
-        return profileImageUrl;
-    }
-
-    public void setProfileImageUrl(String profileImageUrl) {
-        this.profileImageUrl = profileImageUrl;
     }
 
     public LocalDateTime getLastLoginDate() {

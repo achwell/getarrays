@@ -1,10 +1,11 @@
 package net.axelwulff.usermanagement.service;
 
 import net.axelwulff.usermanagement.domain.User;
-import net.axelwulff.usermanagement.exception.*;
-import org.springframework.web.multipart.MultipartFile;
+import net.axelwulff.usermanagement.exception.EmailExistException;
+import net.axelwulff.usermanagement.exception.EmailNotFoundException;
+import net.axelwulff.usermanagement.exception.UserNotFoundException;
+import net.axelwulff.usermanagement.exception.UsernameExistException;
 
-import java.io.IOException;
 import java.util.List;
 
 public interface UserService {
@@ -17,13 +18,11 @@ public interface UserService {
 
     User findUserByEmail(String email);
 
-    User addNewUser(String firstName, String middleName, String lastName, String username, String email, String role, boolean isNonLocked, boolean isActive, MultipartFile profileImage) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException, NotAnImageFileException;
+    User addNewUser(String firstName, String middleName, String lastName, String username, String email, String role, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException;
 
-    User updateUser(String currentUsername, String newFirstName, String newMiddleName, String newLastName, String newUsername, String newEmail, String role, boolean isNonLocked, boolean isActive, MultipartFile profileImage) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException, NotAnImageFileException;
+    User updateUser(String currentUsername, String newFirstName, String newMiddleName, String newLastName, String newUsername, String newEmail, String role, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException;
 
-    void deleteUser(String username) throws IOException;
+    void deleteUser(String username);
 
     void resetPassword(String email) throws EmailNotFoundException;
-
-    User updateProfileImage(String username, MultipartFile profileImage) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException, NotAnImageFileException;
 }
