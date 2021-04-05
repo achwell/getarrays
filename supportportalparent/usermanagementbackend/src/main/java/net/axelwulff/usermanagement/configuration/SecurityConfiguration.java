@@ -39,7 +39,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .and().authorizeRequests()
                 .mvcMatchers(PUBLIC_URLS).permitAll()
                 .anyRequest().authenticated()
-//                .anyRequest().permitAll()
             .and().exceptionHandling()
                 .accessDeniedHandler(jwtAccessDeniedHandler)
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
