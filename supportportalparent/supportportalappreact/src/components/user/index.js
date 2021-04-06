@@ -25,6 +25,7 @@ class UserComponent extends Component {
     canUpdate = authenticationService.hasPrivilege("user:update");
     canCreate = authenticationService.hasPrivilege("user:create");
     canDelete = authenticationService.hasPrivilege("user:delete");
+    username = authenticationService.getUsername();
 
     edit = row => {
         console.log("Edit")
@@ -64,7 +65,7 @@ class UserComponent extends Component {
         };
         return <div>
             {this.canUpdate && <i className="material-icons icon-image-preview pointer" title="Edit user" onClick={onClick}>edit_note</i>}
-            {this.canDelete && <i className="material-icons icon-image-preview pointer" title="Delete user" onClick={onDelete}>delete</i>}
+            {this.canDelete && this.username !== params.row.username && <i className="material-icons icon-image-preview pointer" title="Delete user" onClick={onDelete}>delete</i>}
         </div>;
     };
 

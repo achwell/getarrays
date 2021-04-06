@@ -87,10 +87,12 @@ const authenticationService = {
         return false;
     },
 
+    getUsername() {
+        const user = this.getUserFromLocalCache();
+        return user && user.username;
+    },
+
     hasPrivilege(privilege) {
-
-        console.log({privilege})
-
         const user = this.getUserFromLocalCache();
         if (!user) {
             return false;
@@ -107,7 +109,6 @@ const authenticationService = {
                 }
             })
         })
-        console.log({hasPrivilege})
         return hasPrivilege;
     }
 };
