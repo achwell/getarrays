@@ -1,8 +1,7 @@
 import React, {Component, Fragment} from "react";
-import {withRouter} from "react-router-dom";
+import {Link, withRouter} from "react-router-dom";
 import authenticationService from "../../api/autehentication.service";
-import './login.scss';
-import Notification from "../notification/Notification";
+import Notification from "../notification";
 
 class LoginComponent extends Component {
 
@@ -54,7 +53,7 @@ class LoginComponent extends Component {
                 </hgroup>
                 <form>
                     <div className="group">
-                        <input type="text" name="username" value={this.state.username} onChange={this.handleChange}/>
+                        <input type="text" name="username" value={this.state.username} onChange={this.handleChange} autoComplete={false}/>
                         <span className="highlight"></span><span className="bar"></span>
                         <label>Username</label>
                     </div>
@@ -66,6 +65,10 @@ class LoginComponent extends Component {
                     <button type="button" className="button buttonBlue" onClick={this.loginClicked}>Login
                         <div className="ripples buttonRipples"><span className="ripplesCircle"></span></div>
                     </button>
+                    <div className="group">
+                        Don't have an account?
+                        <Link to="/register">Sign Up</Link>
+                    </div>
                 </form>
             </Fragment>
         )
