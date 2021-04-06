@@ -66,7 +66,8 @@ const authenticationService = {
     },
 
     getUserFromLocalCache() {
-        return JSON.parse(localStorage.getItem('user'));
+        const user = localStorage.getItem('user');
+        return user ? JSON.parse(user) : null;
     },
 
     getToken() {
@@ -84,7 +85,30 @@ const authenticationService = {
         }
         this.logout();
         return false;
-    }
+    },
 
+    hasPrivilege(privilege) {
+
+        console.log({privilege})
+
+        const user = this.getUserFromLocalCache();
+        if (!user) {
+            return false;
+        }
+        const roles = user.roles;
+        if (!roles) {
+            return false;
+        }
+        let hasPrivilege = false;
+        roles.forEach(role => {
+            role.privileges.forEach(p => {
+                if(p.name === privilege) {
+                    hasPrivilege = true;
+                }
+            })
+        })
+        console.log({hasPrivilege})
+        return hasPrivilege;
+    }
 };
 export default authenticationService;

@@ -47,9 +47,6 @@ class LoginComponent extends Component {
         return (
             <Fragment>
                 <Notification message={this.state.error} severity="error"/>
-                <hgroup>
-                    <h1>User Management Portal</h1>
-                </hgroup>
                 <form>
                     <div className="group">
                         <input type="text" name="username" value={this.state.username} onChange={this.handleChange}/>

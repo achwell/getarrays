@@ -1,3 +1,5 @@
+import {Role} from "./role";
+
 export class User {
 
   id: number;
@@ -22,11 +24,11 @@ export class User {
 
   joinDate: Date;
 
-  roles: [];
+  roles: Role[];
 
-  isActive: boolean;
+  active: boolean;
 
-  isNotLocked: boolean;
+  notLocked: boolean;
 
   constructor() {
     this.firstName = '';
@@ -35,7 +37,7 @@ export class User {
     this.username = '';
     this.email = '';
     this.roles = [];
-    this.isActive = false;
-    this.isNotLocked = false;
+    this.active = false;
+    this.notLocked = false;
   }
 }

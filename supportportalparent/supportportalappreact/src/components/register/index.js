@@ -66,9 +66,6 @@ class RegisterComponent extends Component {
         return (
             <Fragment>
                 <Notification message={this.state.message} severity={this.state.severity}/>
-                <hgroup>
-                    <h1>User Management Portal</h1>
-                </hgroup>
                 <form>
                     <div className="group">
                         <input type="text" name="firstName" required value={this.state.firstName}
