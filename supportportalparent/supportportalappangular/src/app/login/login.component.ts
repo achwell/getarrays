@@ -34,7 +34,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.authenticationService.login(user).subscribe(
         (response: HttpResponse<User>) => {
-          console.log(response);
           const token = response.headers.get(HeaderType.JWT_TOKEN);
           this.authenticationService.saveToken(token);
           this.authenticationService.addUserToLocalCache(response.body);
@@ -42,21 +41,20 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.showLoading = false;
         },
         (errorResponse: HttpErrorResponse) => {
-          console.log(errorResponse);
           let message = "";
           if(errorResponse.error.message) {
             message = errorResponse.error.message;
           } else if(errorResponse.message) {
             message = errorResponse.message;
           }
-          this.sendErrorNotification(NotificationType.ERROR, message);
+          this.sendNotification(NotificationType.ERROR, message);
           this.showLoading = false;
         }
       )
     );
   }
 
-  private sendErrorNotification(notificationType: NotificationType, message: string): void {
+  private sendNotification(notificationType: NotificationType, message: string): void {
     if (message) {
       this.notificationService.notify(notificationType, message);
     } else {

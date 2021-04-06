@@ -24,7 +24,6 @@ class LoginComponent extends Component {
     loginClicked = () => {
         authenticationService.login({username: this.state.username, password: this.state.password})
             .then(response => {
-                console.log(response);
                 const token = response.headers["jwt-token"];
                 authenticationService.saveToken(token);
                 authenticationService.addUserToLocalCache(response.data);
@@ -53,7 +52,7 @@ class LoginComponent extends Component {
                 </hgroup>
                 <form>
                     <div className="group">
-                        <input type="text" name="username" value={this.state.username} onChange={this.handleChange} autoComplete={false}/>
+                        <input type="text" name="username" value={this.state.username} onChange={this.handleChange}/>
                         <span className="highlight"></span><span className="bar"></span>
                         <label>Username</label>
                     </div>
