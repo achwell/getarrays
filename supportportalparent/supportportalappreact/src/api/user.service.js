@@ -57,15 +57,6 @@ const userService = {
         return axios.delete(`${baseUrl}/user/${userName}`);
     },
 
-    addUsersToLocalCache(users) {
-        localStorage.setItem('users', JSON.stringify(users));
-    },
-
-    getUsersFromLocalCache() {
-        const users = localStorage.getItem('users');
-        return users ? JSON.parse(users) : null;
-    },
-
     createUserFormData(loggedInUsername, user) {
         const formData = new FormData();
         formData.append('currentUsername', loggedInUsername);
@@ -74,7 +65,7 @@ const userService = {
         formData.append('lastName', user.lastName);
         formData.append('username', user.username);
         formData.append('email', user.email);
-        formData.append('roles', user.roles.map(r => r.name));
+        formData.append('role', user.role.name);
         formData.append('active', JSON.stringify(user.active));
         formData.append('notLocked', JSON.stringify(user.notLocked));
         return formData;

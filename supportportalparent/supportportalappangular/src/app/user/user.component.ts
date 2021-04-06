@@ -194,7 +194,7 @@ export class UserComponent implements OnInit, OnDestroy {
   }
 
   private getUserRole(): string {
-    return this.authenticationService.getUserFromLocalCache().roles.map(r=> r.name).join(",");
+    return this.authenticationService.getUserFromLocalCache().role.name;
   }
 
   private sendNotification(notificationType: NotificationType, message: string): void {

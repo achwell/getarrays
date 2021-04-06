@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 
+import static javax.persistence.FetchType.EAGER;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.AUTO;
 
@@ -40,12 +41,8 @@ public class User implements Serializable {
 
     private LocalDate joinDate;
 
-    @ManyToMany(fetch = LAZY)
-    @JoinTable(
-            name = "users_roles",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
-    private Collection<Role> roles;
+    @ManyToOne(fetch = EAGER)
+    private Role role;
 
     @Column()
     private boolean isActive;
@@ -55,7 +52,7 @@ public class User implements Serializable {
     public User() {
     }
 
-    public User(Long id, String firstName, String middleName, String lastName, String username, String password, String email, LocalDateTime lastLoginDate, LocalDateTime lastLoginDateDisplay, LocalDate joinDate, Collection<Role> roles, boolean isActive, boolean isNotLocked) {
+    public User(Long id, String firstName, String middleName, String lastName, String username, String password, String email, LocalDateTime lastLoginDate, LocalDateTime lastLoginDateDisplay, LocalDate joinDate, Role role, boolean isActive, boolean isNotLocked) {
         this.id = id;
         this.firstName = firstName;
         this.middleName = middleName;
@@ -66,7 +63,7 @@ public class User implements Serializable {
         this.lastLoginDate = lastLoginDate;
         this.lastLoginDateDisplay = lastLoginDateDisplay;
         this.joinDate = joinDate;
-        this.roles = roles;
+        this.role = role;
         this.isActive = isActive;
         this.isNotLocked = isNotLocked;
     }
@@ -151,12 +148,12 @@ public class User implements Serializable {
         this.joinDate = joinDate;
     }
 
-    public Collection<Role> getRoles() {
-        return roles;
+    public Role getRole() {
+        return role;
     }
 
-    public void setRoles(Collection<Role> roles) {
-        this.roles = roles;
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public boolean isActive() {

@@ -24,6 +24,6 @@ Modal.propTypes = {
     subTitle: PropTypes.string,
     children: PropTypes.element.isRequired,
     handleAction: PropTypes.func,
-    actionTitle: PropTypes.string.isRequired,
+    actionTitle: PropTypes.string,
 
 }

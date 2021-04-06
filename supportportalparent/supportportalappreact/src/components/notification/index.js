@@ -20,7 +20,11 @@ function Notification(props) {
     const classes = useStyles();
     const [open, setOpen] = useState(true);
 
-    return !props.message ? null : (
+    if(!props.message) {
+        return null;
+    }
+
+    return (
         <div className={classes.root}>
             <Collapse in={open}>
                 <Alert variant="filled" severity={props.severity} action={

@@ -22,7 +22,7 @@ export class User {
 
   joinDate: Date;
 
-  roles: Role[];
+  role: Role;
 
   active: boolean;
 
@@ -34,7 +34,7 @@ export class User {
     this.lastName = '';
     this.username = '';
     this.email = '';
-    this.roles = [];
+    this.role = null;
     this.active = false;
     this.notLocked = false;
   }

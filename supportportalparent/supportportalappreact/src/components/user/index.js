@@ -5,6 +5,7 @@ import authenticationService from "../../api/autehentication.service";
 import userService from "../../api/user.service";
 import Notification from "../notification";
 import {Modal} from "../modal/modal";
+import UserForm from "./userform";
 
 class UserComponent extends Component {
 
@@ -40,15 +41,16 @@ class UserComponent extends Component {
             selectedName += " " + row.middleName;
         }
         selectedName += " " + row.lastName;
+        row.role = row.role.name;
         this.setState({editOpen: true, selectedUsername: row.username, selectedName, selectedUser: row});
     }
 
     toggleEditModal = e => {
-        this.setState({deleteOpen: !this.state.deleteOpen});
+        this.setState({editOpen: !this.state.editOpen});
     };
 
-    updateUser = () => {
-        const formData = userService.createUserFormData(this.state.selectedUsername, this.state.selectedUser);
+    updateUser = (user) => {
+        const formData = userService.createUserFormData(this.state.selectedUsername, user);
         userService.updateUser(formData)
             .then(response => {
                 let message = "User " + this.state.selectedName + " updated.";
@@ -96,6 +98,10 @@ class UserComponent extends Component {
                 this.setState({error, severity: 'error', deleteOpen: false});
             })
     }
+    renderRoleCell = params => {
+        return <span>{params.row.role.name}</span>;
+
+    }
 
     renderStatusCell = params => {
         const {active, notLocked} = params.row;
@@ -133,6 +139,7 @@ class UserComponent extends Component {
         {field: 'middleName', headerName: 'Middle name', width: 200},
         {field: 'lastName', headerName: 'Last name', width: 200},
         {field: 'email', headerName: 'Email', width: 200},
+        {field: 'role', headerName: 'Role', width: 225, renderCell: params => this.renderRoleCell(params)},
         {
             field: 'active',
             headerName: 'Status',
@@ -163,37 +170,17 @@ class UserComponent extends Component {
             <Fragment>
                 <Notification message={this.state.message} severity={this.state.severity}/>
                 <div style={{height: 400, width: '100%'}}>
-                    <DataGrid
-                        rows={this.state.users}
-                        columns={this.columns}
-                        pageSize={25}
-                        size="small"
-                        allowColumnResizing={true}
-                        selection={{mode: 'single'}}
-                    >
-                    </DataGrid>
+                    <DataGrid rows={this.state.users} columns={this.columns} pageSize={25} size="small"
+                              allowColumnResizing={true} selection={{mode: 'single'}}/>
                 </div>
-                <Modal
-                    isOpen={this.state.deleteOpen}
-                    handleClose={this.toggleDeleteModal}
-                    title="Delete user"
-                    handleAction={this.doDelete}
-                    actionTitle="Delete"
-                >
+                <Modal isOpen={this.state.deleteOpen} handleClose={this.toggleDeleteModal} title="Delete user"
+                       handleAction={this.doDelete} actionTitle="Delete">
                     <div>
                         Vil du slette {this.state.selectedUsername + ": " + this.state.selectedName}?
                     </div>
                 </Modal>
-                <Modal
-                    isOpen={this.state.editOpen}
-                    handleClose={this.toggleEditModal}
-                    title="Update user"
-                    handleAction={this.updateUser}
-                    actionTitle="Save"
-                >
-                    <div>
-                        Vil du slette {this.state.selectedUsername + ": " + this.state.selectedName}?
-                    </div>
+                <Modal isOpen={this.state.editOpen} handleClose={this.toggleEditModal} title="Update user">
+                    <UserForm initialValues={this.state.selectedUser} onSubmit={this.updateUser}/>
                 </Modal>
             </Fragment>
         )

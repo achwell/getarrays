@@ -94,10 +94,10 @@ public class UserResource extends ExceptionHandling {
                                        @RequestParam("lastName") String lastName,
                                        @RequestParam("username") String username,
                                        @RequestParam("email") String email,
-                                       @RequestParam("roles") Collection<String> roles,
+                                       @RequestParam("role") String role,
                                        @RequestParam("active") String isActive,
                                        @RequestParam("notLocked") String isNonLocked) throws UserNotFoundException, UsernameExistException, EmailExistException {
-        User updatedUser = userService.updateUser(currentUsername, firstName, middleName, lastName, username, email, roles, Boolean.parseBoolean(isNonLocked), Boolean.parseBoolean(isActive));
+        User updatedUser = userService.updateUser(currentUsername, firstName, middleName, lastName, username, email, role, Boolean.parseBoolean(isNonLocked), Boolean.parseBoolean(isActive));
         return new ResponseEntity<>(updatedUser, OK);
     }
 

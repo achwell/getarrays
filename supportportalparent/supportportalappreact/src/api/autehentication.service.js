@@ -53,7 +53,6 @@ const authenticationService = {
     logout: () => {
         localStorage.removeItem('user');
         localStorage.removeItem('token');
-        localStorage.removeItem('users');
         localStorage.removeItem('refreshToken');
     },
 
@@ -97,17 +96,15 @@ const authenticationService = {
         if (!user) {
             return false;
         }
-        const roles = user.roles;
-        if (!roles) {
+        const role = user.role;
+        if (!role) {
             return false;
         }
         let hasPrivilege = false;
-        roles.forEach(role => {
-            role.privileges.forEach(p => {
-                if(p.name === privilege) {
-                    hasPrivilege = true;
-                }
-            })
+        role.privileges.forEach(p => {
+            if(p.name === privilege) {
+                hasPrivilege = true;
+            }
         })
         return hasPrivilege;
     }

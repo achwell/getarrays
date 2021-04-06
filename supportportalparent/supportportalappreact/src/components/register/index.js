@@ -47,14 +47,12 @@ class RegisterComponent extends Component {
                 });
             })
             .catch(e => {
-                console.log({e})
                 let error = "";
                 if (e.response) {
                     error = e.response.data.message;
                 } else if (e.message) {
                     error = e.message;
                 }
-                console.log({error})
                 this.setState({severity: 'error', message: error});
             })
     }

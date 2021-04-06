@@ -5,6 +5,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -18,12 +20,15 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getRoles()
-                .stream()
-                .map(Role::getPrivileges)
-                .flatMap(Collection::stream)
+        Role role = user.getRole();
+        if(role == null) {
+            return new HashSet<>();
+        }
+        Set<SimpleGrantedAuthority> authorities = role.getPrivileges().stream()
                 .map(p -> new SimpleGrantedAuthority(p.getName()))
                 .collect(toSet());
+        authorities.add(new SimpleGrantedAuthority(role.getName()));
+        return authorities;
     }
 
     @Override
