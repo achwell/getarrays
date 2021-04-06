@@ -4,10 +4,11 @@ import {DataGrid} from "@material-ui/data-grid";
 import authenticationService from "../../api/autehentication.service";
 import userService from "../../api/user.service";
 import Notification from "../notification";
+import {Modal} from "../modal/modal";
 
 class UserComponent extends Component {
 
-    state = {severity: 'info', message: '', users: []}
+    state = {severity: 'info', message: '', users: [], deleteOpen: false, editOpen: false, selectedUsername: null, selectedName: null, selectedUser: null}
 
     componentDidMount() {
         this.loadData();
@@ -17,7 +18,13 @@ class UserComponent extends Component {
         userService.getUsers()
             .then(response => this.setState({users: response.data}))
             .catch(e => {
-                console.log({e})
+                let error = "";
+                if (e.response) {
+                    error = e.response.data.message;
+                } else if (e.message) {
+                    error = e.message;
+                }
+                this.setState({error, severity: 'error'});
             })
     }
 
@@ -28,15 +35,66 @@ class UserComponent extends Component {
     username = authenticationService.getUsername();
 
     edit = row => {
-        console.log("Edit")
-        console.log({row})
-        return undefined;
+        let selectedName = row.firstName;
+        if (row.middleName) {
+            selectedName += " " + row.middleName;
+        }
+        selectedName += " " + row.lastName;
+        this.setState({editOpen: true, selectedUsername: row.username, selectedName, selectedUser: row});
+    }
+
+    toggleEditModal = e => {
+        this.setState({deleteOpen: !this.state.deleteOpen});
+    };
+
+    updateUser = () => {
+        const formData = userService.createUserFormData(this.state.selectedUsername, this.state.selectedUser);
+        userService.updateUser(formData)
+            .then(response => {
+                let message = "User " + this.state.selectedName + " updated.";
+                this.setState({message, severity: 'success', editOpen: false, selectedUsername: null, selectedName: null, selectedUser: null});
+                this.loadData();
+            })
+            .catch(e => {
+                let error = "";
+                if (e.response) {
+                    error = e.response.data.message;
+                } else if (e.message) {
+                    error = e.message;
+                }
+                this.setState({error, severity: 'error', editOpen: false});
+            });
     }
 
     delete = row => {
-        console.log("Delete")
-        console.log({row})
-        return undefined;
+        let selectedName = row.firstName;
+        if (row.middleName) {
+            selectedName += " " + row.middleName;
+        }
+        selectedName += " " + row.lastName;
+        this.setState({deleteOpen: true, selectedUsername: row.username, selectedName, selectedUser: row});
+    }
+
+    toggleDeleteModal = e => {
+        this.setState({deleteOpen: !this.state.deleteOpen});
+    };
+
+    doDelete = () => {
+        userService.deleteUser(this.state.selectedUsername)
+            .then(response => {
+                let message = "User " + this.state.selectedName + " deleted.";
+                this.setState({message, severity: 'success', deleteOpen: false, selectedUsername: null, selectedName: null, selectedUser: null});
+                this.loadData();
+            })
+            .catch(e => {
+                let error = "";
+                if (e.response) {
+                    error = e.response.data.message;
+                } else if (e.message) {
+                    error = e.message;
+                }
+                this.setState({error, severity: 'error', deleteOpen: false});
+            })
     }
 
     renderStatusCell = params => {
@@ -70,11 +128,10 @@ class UserComponent extends Component {
     };
 
     columns = [
-        {field: 'userId', headerName: 'UserId', width: 100},
+        {field: 'username', headerName: 'Username', width: 150},
         {field: 'firstName', headerName: 'First name', width: 200},
         {field: 'middleName', headerName: 'Middle name', width: 200},
         {field: 'lastName', headerName: 'Last name', width: 200},
-        {field: 'username', headerName: 'Username', width: 150},
         {field: 'email', headerName: 'Email', width: 200},
         {
             field: 'active',
@@ -116,6 +173,28 @@ class UserComponent extends Component {
                     >
                     </DataGrid>
                 </div>
+                <Modal
+                    isOpen={this.state.deleteOpen}
+                    handleClose={this.toggleDeleteModal}
+                    title="Delete user"
+                    handleAction={this.doDelete}
+                    actionTitle="Delete"
+                >
+                    <div>
+                        Vil du slette {this.state.selectedUsername + ": " + this.state.selectedName}?
+                    </div>
+                </Modal>
+                <Modal
+                    isOpen={this.state.editOpen}
+                    handleClose={this.toggleEditModal}
+                    title="Update user"
+                    handleAction={this.updateUser}
+                    actionTitle="Save"
+                >
+                    <div>
+                        Vil du slette {this.state.selectedUsername + ": " + this.state.selectedName}?
+                    </div>
+                </Modal>
             </Fragment>
         )
     }

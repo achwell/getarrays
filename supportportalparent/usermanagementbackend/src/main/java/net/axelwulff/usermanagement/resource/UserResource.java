@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
+import java.util.Collection;
 import java.util.List;
 
 import static net.axelwulff.usermanagement.constant.SecurityConstant.JWT_TOKEN_HEADER;
@@ -93,10 +94,10 @@ public class UserResource extends ExceptionHandling {
                                        @RequestParam("lastName") String lastName,
                                        @RequestParam("username") String username,
                                        @RequestParam("email") String email,
-                                       @RequestParam("role") String role,
-                                       @RequestParam("isActive") String isActive,
-                                       @RequestParam("isNonLocked") String isNonLocked) throws UserNotFoundException, UsernameExistException, EmailExistException {
-        User updatedUser = userService.updateUser(currentUsername, firstName, middleName, lastName, username, email, role, Boolean.parseBoolean(isNonLocked), Boolean.parseBoolean(isActive));
+                                       @RequestParam("roles") Collection<String> roles,
+                                       @RequestParam("active") String isActive,
+                                       @RequestParam("notLocked") String isNonLocked) throws UserNotFoundException, UsernameExistException, EmailExistException {
+        User updatedUser = userService.updateUser(currentUsername, firstName, middleName, lastName, username, email, roles, Boolean.parseBoolean(isNonLocked), Boolean.parseBoolean(isActive));
         return new ResponseEntity<>(updatedUser, OK);
     }
 

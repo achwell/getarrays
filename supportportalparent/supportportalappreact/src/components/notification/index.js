@@ -1,7 +1,10 @@
-import React from 'react';
-import PropTypes from "prop-types";
+import React, {useState} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import Alert from '@material-ui/lab/Alert';
+import IconButton from '@material-ui/core/IconButton';
+import Collapse from '@material-ui/core/Collapse';
+import CloseIcon from '@material-ui/icons/Close';
+import PropTypes from "prop-types";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -15,12 +18,26 @@ const useStyles = makeStyles((theme) => ({
 function Notification(props) {
 
     const classes = useStyles();
+    const [open, setOpen] = useState(true);
 
     return !props.message ? null : (
         <div className={classes.root}>
-            <Alert variant="filled" severity={props.severity}>
-                {props.message}
-            </Alert>
+            <Collapse in={open}>
+                <Alert variant="filled" severity={props.severity} action={
+                    <IconButton
+                        aria-label="close"
+                        color="inherit"
+                        size="small"
+                        onClick={() => {
+                            setOpen(false);
+                        }}
+                    >
+                        <CloseIcon fontSize="inherit"/>
+                    </IconButton>
+                }>
+                    {props.message}
+                </Alert>
+            </Collapse>
         </div>
     );
 }

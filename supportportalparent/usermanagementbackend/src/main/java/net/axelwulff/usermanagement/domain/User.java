@@ -17,9 +17,6 @@ public class User implements Serializable {
     @Column(nullable = false, updatable = false)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String userId;
-
     @Column(nullable = false)
     private String firstName;
 
@@ -58,9 +55,8 @@ public class User implements Serializable {
     public User() {
     }
 
-    public User(Long id, String userId, String firstName, String middleName, String lastName, String username, String password, String email, LocalDateTime lastLoginDate, LocalDateTime lastLoginDateDisplay, LocalDate joinDate, Collection<Role> roles, boolean isActive, boolean isNotLocked) {
+    public User(Long id, String firstName, String middleName, String lastName, String username, String password, String email, LocalDateTime lastLoginDate, LocalDateTime lastLoginDateDisplay, LocalDate joinDate, Collection<Role> roles, boolean isActive, boolean isNotLocked) {
         this.id = id;
-        this.userId = userId;
         this.firstName = firstName;
         this.middleName = middleName;
         this.lastName = lastName;
@@ -81,14 +77,6 @@ public class User implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 
     public String getFirstName() {

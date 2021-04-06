@@ -70,7 +70,7 @@ export class UserComponent implements OnInit, OnDestroy {
   }
 
   public onAddNewUser(userForm: NgForm): void {
-    const formData = this.userService.createUserFromData(null, userForm.value);
+    const formData = this.userService.createUserFormData(null, userForm.value);
     this.subscriptions.push(
       this.userService.addUser(formData).subscribe(
         (response: User) => {
@@ -87,7 +87,7 @@ export class UserComponent implements OnInit, OnDestroy {
   }
 
   public onUpdateUser(): void {
-    const formData = this.userService.createUserFromData(this.currentUsername, this.editUser);
+    const formData = this.userService.createUserFormData(this.currentUsername, this.editUser);
     this.subscriptions.push(
       this.userService.updateUser(formData).subscribe(
         (response: User) => {
@@ -105,7 +105,7 @@ export class UserComponent implements OnInit, OnDestroy {
   public onUpdateCurrentUser(user: User): void {
     this.refreshing = true;
     this.currentUsername = this.authenticationService.getUserFromLocalCache().username;
-    const formData = this.userService.createUserFromData(this.currentUsername, user);
+    const formData = this.userService.createUserFormData(this.currentUsername, user);
     this.subscriptions.push(
       this.userService.updateUser(formData).subscribe(
         (response: User) => {
@@ -171,8 +171,7 @@ export class UserComponent implements OnInit, OnDestroy {
       if (user.firstName.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1 ||
         user.middleName?.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1 ||
         user.lastName.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1 ||
-        user.username.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1 ||
-        user.userId.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
+        user.username.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
         results.push(user);
       }
     }

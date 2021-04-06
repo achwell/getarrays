@@ -4,8 +4,6 @@ export class User {
 
   id: number;
 
-  userId: string;
-
   firstName: string;
 
   middleName: string;

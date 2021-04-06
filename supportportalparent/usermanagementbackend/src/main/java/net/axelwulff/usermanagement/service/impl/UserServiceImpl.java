@@ -22,11 +22,15 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.time.LocalDateTime.now;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toSet;
 import static net.axelwulff.usermanagement.constant.UserImplConstant.*;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
@@ -74,7 +78,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public User register(String firstName, String middleName, String lastName, String username, String email) throws UserNotFoundException, UsernameExistException, EmailExistException {
         validateUsernameAndEmail(EMPTY, username, email);
         User user = new User();
-        user.setUserId(generateUserId());
         String password = generatePassword();
         user.setFirstName(firstName);
         user.setMiddleName(middleName);
@@ -113,7 +116,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         validateUsernameAndEmail(EMPTY, username, email);
         User user = new User();
         String password = generatePassword();
-        user.setUserId(generateUserId());
         user.setFirstName(firstName);
         user.setMiddleName(middleName);
         user.setLastName(lastName);
@@ -131,8 +133,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User updateUser(String currentUsername, String newFirstName, String newMiddleName, String newLastName, String newUsername, String newEmail, String role, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException {
+    public User updateUser(String currentUsername, String newFirstName, String newMiddleName, String newLastName, String newUsername, String newEmail, Collection<String> roleNames, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException {
         User currentUser = validateUsernameAndEmail(currentUsername, newUsername, newEmail);
+        if(currentUser == null) {
+            return null;
+        }
         currentUser.setFirstName(newFirstName);
         currentUser.setMiddleName(newMiddleName);
         currentUser.setLastName(newLastName);
@@ -140,8 +145,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         currentUser.setEmail(newEmail);
         currentUser.setActive(isActive);
         currentUser.setNotLocked(isNonLocked);
-        Role userRole = roleRepository.findByName(role);
-        currentUser.setRoles(singletonList(userRole));
+        Set<Role> roles = roleNames.stream().map(roleRepository::findByName).filter(Objects::nonNull).collect(toSet());
+        currentUser.setRoles(roles);
         userRepository.save(currentUser);
         return currentUser;
     }
@@ -149,7 +154,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public void deleteUser(String username) {
         User user = userRepository.findUserByUsername(username);
-        userRepository.deleteById(user.getId());
+        if(user != null) {
+            userRepository.deleteById(user.getId());
+        }
     }
 
     @Override
@@ -171,10 +178,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private String generatePassword() {
         return randomAlphanumeric(10);
-    }
-
-    private String generateUserId() {
-        return randomNumeric(10);
     }
 
     private void validateLoginAttempt(User user) {

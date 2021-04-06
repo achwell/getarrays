@@ -54,7 +54,7 @@ const userService = {
     },
 
     deleteUser(userName) {
-        return axios.delete(`${this.host}/user/${userName}`);
+        return axios.delete(`${baseUrl}/user/${userName}`);
     },
 
     addUsersToLocalCache(users) {
@@ -66,7 +66,7 @@ const userService = {
         return users ? JSON.parse(users) : null;
     },
 
-    createUserFromData(loggedInUsername, user) {
+    createUserFormData(loggedInUsername, user) {
         const formData = new FormData();
         formData.append('currentUsername', loggedInUsername);
         formData.append('firstName', user.firstName);
@@ -74,7 +74,7 @@ const userService = {
         formData.append('lastName', user.lastName);
         formData.append('username', user.username);
         formData.append('email', user.email);
-        formData.append('roles', JSON.stringify(user.roles));
+        formData.append('roles', user.roles.map(r => r.name));
         formData.append('active', JSON.stringify(user.active));
         formData.append('notLocked', JSON.stringify(user.notLocked));
         return formData;

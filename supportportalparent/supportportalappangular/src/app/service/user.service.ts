@@ -42,7 +42,7 @@ export class UserService {
     return users ? JSON.parse(users) : null;
   }
 
-  public createUserFromData(loggedInUsername: string, user: User): FormData {
+  public createUserFormData(loggedInUsername: string, user: User): FormData {
     const formData = new FormData();
     formData.append('currentUsername', loggedInUsername);
     formData.append('firstName', user.firstName);
