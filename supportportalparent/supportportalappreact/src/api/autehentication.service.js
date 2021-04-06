@@ -51,8 +51,6 @@ const authenticationService = {
         return axios.get(`${baseUrl}/token/refresh`);
     },
     logout: () => {
-        this.token = null;
-        this.loggedInUsername = null;
         localStorage.removeItem('user');
         localStorage.removeItem('token');
         localStorage.removeItem('users');
@@ -60,7 +58,6 @@ const authenticationService = {
     },
 
     saveToken(token) {
-        this.token = token;
         localStorage.setItem('token', token);
     },
 
@@ -72,21 +69,16 @@ const authenticationService = {
         return JSON.parse(localStorage.getItem('user'));
     },
 
-    loadToken() {
-        this.token = localStorage.getItem('token');
-    },
-
     getToken() {
-        return this.token;
+        return localStorage.getItem('token');
     },
 
     isLoggedIn() {
-        this.loadToken();
-        if (this.token != null && this.token !== '') {
-            const decodedToken = jwt_decode(this.token);
+        let token = this.getToken();
+        if (token != null && token !== '') {
+            const decodedToken = jwt_decode(token);
             const subject = decodedToken.sub;
             if ((subject != null || '') && !decodedToken.exp * 1000 < new Date().getTime()) {
-                this.loggedInUsername = subject;
                 return true;
             }
         }
