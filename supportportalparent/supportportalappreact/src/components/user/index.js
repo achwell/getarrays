@@ -1,15 +1,22 @@
 import React, {Component, Fragment} from 'react';
 import {withRouter} from "react-router-dom";
 import {DataGrid} from "@material-ui/data-grid";
-import authenticationService from "../../api/autehentication.service";
-import userService from "../../api/user.service";
-import Notification from "../notification";
+import authenticationService from "../../service/autehentication.service";
+import userService from "../../service/user.service";
 import {Modal} from "../modal/modal";
 import UserForm from "./userform";
+import {withSnackbar} from "notistack";
 
 class UserComponent extends Component {
 
-    state = {severity: 'info', message: '', users: [], deleteOpen: false, editOpen: false, selectedUsername: null, selectedName: null, selectedUser: null}
+    state = {
+        users: [],
+        deleteOpen: false,
+        editOpen: false,
+        selectedUsername: null,
+        selectedName: null,
+        selectedUser: null
+    }
 
     componentDidMount() {
         this.loadData();
@@ -25,7 +32,7 @@ class UserComponent extends Component {
                 } else if (e.message) {
                     error = e.message;
                 }
-                this.setState({error, severity: 'error'});
+                this.props.enqueueSnackbar(error, {variant: 'error'});
             })
     }
 
@@ -53,8 +60,8 @@ class UserComponent extends Component {
         const formData = userService.createUserFormData(this.state.selectedUsername, user);
         userService.updateUser(formData)
             .then(response => {
-                let message = "User " + this.state.selectedName + " updated.";
-                this.setState({message, severity: 'success', editOpen: false, selectedUsername: null, selectedName: null, selectedUser: null});
+                this.props.enqueueSnackbar("User " + this.state.selectedName + " updated.", {variant: 'success'});
+                this.setState({editOpen: false, selectedUsername: null, selectedName: null, selectedUser: null});
                 this.loadData();
             })
             .catch(e => {
@@ -64,7 +71,8 @@ class UserComponent extends Component {
                 } else if (e.message) {
                     error = e.message;
                 }
-                this.setState({error, severity: 'error', editOpen: false});
+                this.props.enqueueSnackbar(error, {variant: 'error'});
+                this.toggleEditModal();
             });
     }
 
@@ -84,8 +92,8 @@ class UserComponent extends Component {
     doDelete = () => {
         userService.deleteUser(this.state.selectedUsername)
             .then(response => {
-                let message = "User " + this.state.selectedName + " deleted.";
-                this.setState({message, severity: 'success', deleteOpen: false, selectedUsername: null, selectedName: null, selectedUser: null});
+                this.props.enqueueSnackbar("User " + this.state.selectedName + " deleted.", {variant: 'success'});
+                this.setState({deleteOpen: false, selectedUsername: null, selectedName: null, selectedUser: null});
                 this.loadData();
             })
             .catch(e => {
@@ -95,7 +103,8 @@ class UserComponent extends Component {
                 } else if (e.message) {
                     error = e.message;
                 }
-                this.setState({error, severity: 'error', deleteOpen: false});
+                this.props.enqueueSnackbar(error, {variant: 'error'});
+                this.toggleDeleteModal();
             })
     }
     renderRoleCell = params => {
@@ -168,7 +177,6 @@ class UserComponent extends Component {
         }
         return (
             <Fragment>
-                <Notification message={this.state.message} severity={this.state.severity}/>
                 <div style={{height: 400, width: '100%'}}>
                     <DataGrid rows={this.state.users} columns={this.columns} pageSize={25} size="small"
                               allowColumnResizing={true} selection={{mode: 'single'}}/>
@@ -187,4 +195,4 @@ class UserComponent extends Component {
     }
 }
 
-export default withRouter(UserComponent);
+export default withSnackbar(withRouter(UserComponent));

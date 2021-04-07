@@ -1,19 +1,11 @@
 import React, {Component, Fragment} from 'react';
 import {Link, withRouter} from "react-router-dom";
-import Notification from "../notification";
-import authenticationService from "../../api/autehentication.service";
+import authenticationService from "../../service/autehentication.service";
+import {withSnackbar} from "notistack";
 
 class RegisterComponent extends Component {
 
-    state = {
-        firstName: '',
-        middleName: '',
-        lastName: '',
-        username: '',
-        email: '',
-        severity: 'info',
-        message: ''
-    }
+    state = {firstName: '', middleName: '', lastName: '', username: '', email: ''}
 
     handleChange = event => {
         const value = event.target.value;
@@ -22,11 +14,11 @@ class RegisterComponent extends Component {
         } else {
             event.target.classList.remove("used");
         }
+
         this.setState({[event.target.name]: value, message: ""});
     }
 
     registerClicked = () => {
-        this.setState({severity: 'info', message: ""});
         authenticationService.register({
             firstName: this.state.firstName,
             middlename: this.state.middleName,
@@ -36,14 +28,13 @@ class RegisterComponent extends Component {
         })
             .then(response => {
                 const message = `A new account was created for ${response.data.firstName}. Please check your email for password to log in.`;
+                this.props.enqueueSnackbar(message, {variant: 'success'});
                 this.setState({
                     firstName: '',
                     middlename: '',
                     lastName: '',
                     username: '',
-                    email: '',
-                    severity: 'success',
-                    message
+                    email: ''
                 });
             })
             .catch(e => {
@@ -53,7 +44,7 @@ class RegisterComponent extends Component {
                 } else if (e.message) {
                     error = e.message;
                 }
-                this.setState({severity: 'error', message: error});
+                this.props.enqueueSnackbar(error, {variant: 'error'});
             })
     }
 
@@ -63,7 +54,6 @@ class RegisterComponent extends Component {
         }
         return (
             <Fragment>
-                <Notification message={this.state.message} severity={this.state.severity}/>
                 <form>
                     <div className="group">
                         <input type="text" name="firstName" required value={this.state.firstName}
@@ -108,4 +98,4 @@ class RegisterComponent extends Component {
     }
 }
 
-export default withRouter(RegisterComponent);
+export default withSnackbar(withRouter(RegisterComponent));

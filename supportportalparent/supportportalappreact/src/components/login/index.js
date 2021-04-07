@@ -1,24 +1,26 @@
-import React, {Component, Fragment} from "react";
-import {Link, withRouter} from "react-router-dom";
-import authenticationService from "../../api/autehentication.service";
-import Notification from "../notification";
+import React, {Component} from "react";
+import {Link} from "react-router-dom";
+import PropTypes from "prop-types";
+import FormControl from "@material-ui/core/FormControl";
+import {Button, Input, InputLabel} from "@material-ui/core";
+import {withSnackbar} from "notistack";
+
+import authenticationService from "../../service/autehentication.service";
+
+import history from "../../utils/history";
 
 class LoginComponent extends Component {
 
-    state = {
-        username: '',
-        password: '',
-        error: ''
-    }
+    state = {username: '', password: ''}
 
     handleChange = event => {
         const value = event.target.value;
-        if(value) {
+        if (value) {
             event.target.classList.add("used");
         } else {
             event.target.classList.remove("used");
         }
-        this.setState({[event.target.name]: value, error: ""});
+        this.setState({[event.target.name]: value});
     }
 
     loginClicked = () => {
@@ -27,7 +29,10 @@ class LoginComponent extends Component {
                 const token = response.headers["jwt-token"];
                 authenticationService.saveToken(token);
                 authenticationService.addUserToLocalCache(response.data);
-                this.props.history.push('/user/management');
+                if (this.props.callBack) {
+                    this.props.callBack(true);
+                }
+                history.push('/user/management');
             })
             .catch(e => {
                 let error = "";
@@ -36,39 +41,39 @@ class LoginComponent extends Component {
                 } else if (e.message) {
                     error = e.message;
                 }
-                this.setState({error});
+                this.props.enqueueSnackbar(error, {variant: 'error'});
             });
     }
 
     render() {
-        if (authenticationService.isLoggedIn()) {
-            this.props.history.push("/user/management");
-        }
         return (
-            <Fragment>
-                <Notification message={this.state.error} severity="error"/>
-                <form>
-                    <div className="group">
-                        <input type="text" name="username" value={this.state.username} onChange={this.handleChange}/>
-                        <span className="highlight"></span><span className="bar"></span>
-                        <label>Username</label>
+            <div style={{display: "flex", justifyContent: "center", margin: 20, padding: 20}}>
+                <form style={{width: "100%"}} autoComplete="off">
+                    <FormControl margin="normal" fullWidth>
+                        <InputLabel htmlFor="username">Username</InputLabel>
+                        <Input id="username" name="username" type="text" required value={this.state.username} onChange={this.handleChange}/>
+                    </FormControl>
+                    <FormControl margin="normal" fullWidth>
+                        <InputLabel htmlFor="password">Password</InputLabel>
+                        <Input id="password" name="password" type="password" required value={this.state.password} onChange={this.handleChange}/>
+                    </FormControl>
+                    <div>
+                        <Button variant="outlined" color="primary" onClick={this.loginClicked}>Log in</Button>
                     </div>
-                    <div className="group">
-                        <input type="password" name="password" value={this.state.password} onChange={this.handleChange}/>
-                        <span className="highlight"></span><span className="bar"></span>
-                        <label>Password</label>
-                    </div>
-                    <button type="button" className="button buttonBlue" onClick={this.loginClicked}>Login
-                        <div className="ripples buttonRipples"><span className="ripplesCircle"></span></div>
-                    </button>
+                    <br/>
                     <div className="group">
                         Don't have an account?
                         <Link to="/register">Sign Up</Link>
                     </div>
                 </form>
-            </Fragment>
+            </div>
         )
     }
 }
 
-export default withRouter(LoginComponent);
+LoginComponent.propTypes = {
+    history: PropTypes.object.isRequired,
+    callBack: PropTypes.func
+}
+
+export default withSnackbar(LoginComponent);
