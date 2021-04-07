@@ -13,6 +13,7 @@
     <artifactId>supportportalparent</artifactId>
 
     <modules>
+        <module>supportportalappreact</module>
         <module>usermanagementbackend</module>
     </modules>
 
