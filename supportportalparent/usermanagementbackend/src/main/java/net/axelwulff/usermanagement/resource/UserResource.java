@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
-import java.util.Collection;
 import java.util.List;
 
 import static net.axelwulff.usermanagement.constant.SecurityConstant.JWT_TOKEN_HEADER;

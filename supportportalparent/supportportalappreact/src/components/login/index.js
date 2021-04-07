@@ -1,13 +1,12 @@
 import React, {Component} from "react";
-import {Link} from "react-router-dom";
+import {Link, withRouter} from "react-router-dom";
 import PropTypes from "prop-types";
 import FormControl from "@material-ui/core/FormControl";
 import {Button, Input, InputLabel} from "@material-ui/core";
 import {withSnackbar} from "notistack";
 
 import authenticationService from "../../service/autehentication.service";
-
-import history from "../../utils/history";
+import roleService from "../../service/role.service";
 
 class LoginComponent extends Component {
 
@@ -29,10 +28,11 @@ class LoginComponent extends Component {
                 const token = response.headers["jwt-token"];
                 authenticationService.saveToken(token);
                 authenticationService.addUserToLocalCache(response.data);
+                roleService.loadRoles();
                 if (this.props.callBack) {
                     this.props.callBack(true);
                 }
-                history.push('/user/management');
+                this.props.history.push('/user/management');
             })
             .catch(e => {
                 let error = "";
@@ -72,8 +72,7 @@ class LoginComponent extends Component {
 }
 
 LoginComponent.propTypes = {
-    history: PropTypes.object.isRequired,
     callBack: PropTypes.func
 }
 
-export default withSnackbar(LoginComponent);
+export default withRouter(withSnackbar(LoginComponent));

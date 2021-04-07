@@ -1,9 +1,11 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {Checkbox, Input, InputLabel, Button} from "@material-ui/core";
+import {Button, Checkbox, Input, InputLabel} from "@material-ui/core";
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
+import {withSnackbar} from "notistack";
+import roleService from "../../service/role.service";
 
 class UserForm extends Component {
 
@@ -17,9 +19,14 @@ class UserForm extends Component {
 
     handleCheckboxChange = e => this.setState({values: {...this.state.values, [e.target.name]: e.target.checked}});
 
+    getRoles = () => {
+        return roleService.getRoles().map(role =><MenuItem key={role.name} value={role.name}>{role.name}</MenuItem>);
+    };
+
     render() {
         const {values} = this.state;
         const update = !!values.id;
+        const roles = this.getRoles();
         return (
             <div
                 style={{
@@ -71,10 +78,7 @@ class UserForm extends Component {
                             onChange={this.handleInputChange}
                             autoWidth
                         >
-                            <MenuItem value="ROLE_USER">ROLE_USER</MenuItem>
-                            <MenuItem value="ROLE_MANAGER_AUTHORITIES">ROLE_MANAGER_AUTHORITIES</MenuItem>
-                            <MenuItem value="ROLE_ADMIN_AUTHORITIES">ROLE_ADMIN_AUTHORITIES</MenuItem>
-                            <MenuItem value="ROLE_SUPER_ADMIN_AUTHORITIES">ROLE_SUPER_ADMIN_AUTHORITIES</MenuItem>
+                            {roles}
                         </Select>
                     </FormControl>
                     <div>
@@ -92,4 +96,4 @@ UserForm.propTypes = {
     onSubmit: PropTypes.func.isRequired,
 
 };
-export default UserForm;
+export default withSnackbar(UserForm);

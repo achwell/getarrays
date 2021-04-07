@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import Button from "@material-ui/core/Button";
 
 import authenticationService from "../../service/autehentication.service";
+import {withRouter} from "react-router-dom";
 
 function LogInOutButton(props) {
 
@@ -41,8 +42,7 @@ function LogInOutButton(props) {
 
 LogInOutButton.propTypes = {
     isLoggedIn: PropTypes.bool.isRequired,
-    history: PropTypes.object.isRequired,
     callBack: PropTypes.func
 }
 
-export default LogInOutButton;
+export default withRouter(LogInOutButton);

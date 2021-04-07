@@ -1,11 +1,11 @@
 import React, {Component, Fragment} from 'react';
 import {withRouter} from "react-router-dom";
 import {DataGrid} from "@material-ui/data-grid";
+import {withSnackbar} from "notistack";
 import authenticationService from "../../service/autehentication.service";
 import userService from "../../service/user.service";
 import {Modal} from "../modal/modal";
 import UserForm from "./userform";
-import {withSnackbar} from "notistack";
 
 class UserComponent extends Component {
 

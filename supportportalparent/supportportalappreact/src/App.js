@@ -1,13 +1,11 @@
 import React, {useState} from 'react';
 
-import {Redirect, Route, Router, Switch} from 'react-router-dom';
+import {BrowserRouter as Router, Redirect, Route, Switch} from 'react-router-dom';
 
 import {makeStyles} from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar'
 import TypoGraphy from '@material-ui/core/Typography'
-
-import history from "./utils/history";
 
 import authenticationService from "./service/autehentication.service";
 
@@ -37,18 +35,18 @@ function App(props) {
     const [isLoggedIn, setIsLoggedIn] = useState(authenticationService.isLoggedIn());
 
     return (
-        <Router history={history}>
+        <Router>
             <AppBar position="static" className={classes.root}>
                 <Toolbar>
                     <TypoGraphy variant="h4" className={classes.h4}>
                         User Management Portal
                     </TypoGraphy>
-                    <LogInOutButton isLoggedIn={isLoggedIn} history={history} callBack={setIsLoggedIn}/>
+                    <LogInOutButton isLoggedIn={isLoggedIn} callBack={setIsLoggedIn}/>
                 </Toolbar>
             </AppBar>
             <Switch>
                 <Route exact path="/login">
-                    {isLoggedIn ? <Redirect to="/user/management"/> : <LoginComponent history={history} callBack={setIsLoggedIn}/>}
+                    {isLoggedIn ? <Redirect to="/user/management"/> : <LoginComponent callBack={setIsLoggedIn}/>}
                 </Route>
                 <Route exact path="/register">
                     {isLoggedIn ? <Redirect to="/user/management"/> : <RegisterComponent/>}
