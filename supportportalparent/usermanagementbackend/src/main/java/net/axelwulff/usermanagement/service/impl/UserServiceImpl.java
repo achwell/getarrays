@@ -3,10 +3,7 @@ package net.axelwulff.usermanagement.service.impl;
 import net.axelwulff.usermanagement.domain.Role;
 import net.axelwulff.usermanagement.domain.User;
 import net.axelwulff.usermanagement.domain.UserPrincipal;
-import net.axelwulff.usermanagement.exception.EmailExistException;
-import net.axelwulff.usermanagement.exception.EmailNotFoundException;
-import net.axelwulff.usermanagement.exception.UserNotFoundException;
-import net.axelwulff.usermanagement.exception.UsernameExistException;
+import net.axelwulff.usermanagement.exception.*;
 import net.axelwulff.usermanagement.repository.RoleRepository;
 import net.axelwulff.usermanagement.repository.UserRepository;
 import net.axelwulff.usermanagement.service.EmailService;
@@ -106,7 +103,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User addNewUser(String firstName, String middleName, String lastName, String username, String email, String phone, String role, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException {
+    public User addNewUser(String firstName, String middleName, String lastName, String username, String email, String phone, Long roleId, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException, RoleNotFoundException {
         validateUsernameAndEmail(EMPTY, username, email);
         User user = new User();
         String password = generatePassword();
@@ -120,7 +117,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setPassword(encodePassword(password));
         user.setActive(isActive);
         user.setNotLocked(isNonLocked);
-        Role userRole = roleRepository.findByName(role);
+        Role userRole = roleRepository.findById(roleId).orElseThrow(() -> new RoleNotFoundException("No role found with id " + roleId));
         user.setRole(userRole);
         userRepository.save(user);
         LOGGER.info("New user password: " + password);
@@ -128,7 +125,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User updateUser(String currentUsername, String newFirstName, String newMiddleName, String newLastName, String newUsername, String newEmail, String newPhone, String roleName, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException {
+    public User updateUser(String currentUsername, String newFirstName, String newMiddleName, String newLastName, String newUsername, String newEmail, String newPhone, Long roleId, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException, RoleNotFoundException {
         User currentUser = validateUsernameAndEmail(currentUsername, newUsername, newEmail);
         if (currentUser == null) {
             return null;
@@ -141,7 +138,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         currentUser.setPhone(newPhone);
         currentUser.setActive(isActive);
         currentUser.setNotLocked(isNonLocked);
-        Role role = roleRepository.findByName(roleName);
+        Role role = roleRepository.findById(roleId).orElseThrow(() -> new RoleNotFoundException("No role found with id " + roleId));
         currentUser.setRole(role);
         userRepository.save(currentUser);
         return currentUser;

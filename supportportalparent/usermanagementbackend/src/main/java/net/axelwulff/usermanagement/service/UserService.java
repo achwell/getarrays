@@ -1,12 +1,8 @@
 package net.axelwulff.usermanagement.service;
 
 import net.axelwulff.usermanagement.domain.User;
-import net.axelwulff.usermanagement.exception.EmailExistException;
-import net.axelwulff.usermanagement.exception.EmailNotFoundException;
-import net.axelwulff.usermanagement.exception.UserNotFoundException;
-import net.axelwulff.usermanagement.exception.UsernameExistException;
+import net.axelwulff.usermanagement.exception.*;
 
-import java.util.Collection;
 import java.util.List;
 
 public interface UserService {
@@ -19,9 +15,9 @@ public interface UserService {
 
     User findUserByEmail(String email);
 
-    User addNewUser(String firstName, String middleName, String lastName, String username, String email, String phone, String role, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException;
+    User addNewUser(String firstName, String middleName, String lastName, String username, String email, String phone, Long roleId, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException, RoleNotFoundException;
 
-    User updateUser(String currentUsername, String newFirstName, String newMiddleName, String newLastName, String newUsername, String newEmail, String newPhone, String roleName, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException;
+    User updateUser(String currentUsername, String newFirstName, String newMiddleName, String newLastName, String newUsername, String newEmail, String newPhone, Long roleId, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException, RoleNotFoundException;
 
     void deleteUser(String username);
 

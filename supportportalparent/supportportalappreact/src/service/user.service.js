@@ -66,7 +66,7 @@ const userService = {
         formData.append('username', user.username);
         formData.append('email', user.email);
         formData.append('phone', user.phone);
-        formData.append('role', user.role.name);
+        formData.append('role', user.role.id);
         formData.append('active', JSON.stringify(user.active));
         formData.append('notLocked', JSON.stringify(user.notLocked));
         return formData;

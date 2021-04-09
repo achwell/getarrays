@@ -19,7 +19,7 @@ class UserComponent extends Component {
     }
 
     componentDidMount() {
-        this.loadData(true);
+        this.loadData(false);
     }
 
     loadData(writeMessage) {
@@ -42,26 +42,25 @@ class UserComponent extends Component {
 
     initEdit = user => {
         let selectedName = this.getFullName(user);
-        user.role = user.role.name;
-        this.setState({editOpen: true, selectedUsername: user.username, selectedName, selectedUser: user});
+        this.setState({editOpen: true, deleteOpen: false, selectedUsername: user.username, selectedName, selectedUser: user});
     }
 
     initDelete = user => {
         let selectedName = this.getFullName(user);
-        this.setState({deleteOpen: true, selectedUsername: user.username, selectedName, selectedUser: user});
+        this.setState({deleteOpen: true, editOpen: false, selectedUsername: user.username, selectedName, selectedUser: user});
     }
 
     doDelete = () => {
         userService.deleteUser(this.state.selectedUsername)
             .then(response => this.handleResponse("deleted"))
-            .catch(e => this.handleError(e, () => this.state({deleteOpen: false})));
+            .catch(e => this.handleError(e, () => this.state({deleteOpen: false, editOpen: false})));
     }
 
-    initUpdateUser = (user) => {
+    doUpdateUser = (user) => {
         const formData = userService.createUserFormData(this.state.selectedUsername, user);
         userService.updateUser(formData)
             .then(response => this.handleResponse("updated"))
-            .catch(e => this.handleError(e, () => this.state({editOpen: false})));
+            .catch(e => this.handleError(e, () => this.state({deleteOpen: false, editOpen: false})));
     }
 
     getFullName = user => {
@@ -92,6 +91,13 @@ class UserComponent extends Component {
         } else if (e.message) {
             error = e.message;
         }
+        this.setState({
+            deleteOpen: false,
+            editOpen: false,
+            selectedUsername: null,
+            selectedName: null,
+            selectedUser: null
+        });
         this.props.enqueueSnackbar(error, {variant: 'error'});
         if (callback) {
             callback();
@@ -109,14 +115,14 @@ class UserComponent extends Component {
             <Fragment>
                 <Usertable rows={this.state.users} edit={this.initEdit} delete={this.initDelete}
                            canUpdate={this.canUpdate} canDelete={this.canDelete} username={this.username}/>
-                <Modal isOpen={this.state.deleteOpen} handleClose={() => this.state({deleteOpen: false})} title="Delete user"
+                <Modal isOpen={this.state.deleteOpen} handleClose={() => this.setState({deleteOpen: false})} title="Delete user"
                        handleAction={this.doDelete} actionTitle="Delete">
                     <div>
                         Vil du slette {this.state.selectedUsername + ": " + this.state.selectedName}?
                     </div>
                 </Modal>
-                <Modal isOpen={this.state.editOpen} handleClose={() => this.state({editOpen: false})} title="Update user">
-                    <UserForm initialValues={this.state.selectedUser} onSubmit={this.initUpdateUser}/>
+                <Modal isOpen={this.state.editOpen} handleClose={() => this.setState({editOpen: false})} title="Update user">
+                    <UserForm initialValues={this.state.selectedUser} onSubmit={this.doUpdateUser}/>
                 </Modal>
             </Fragment>
         )

@@ -46,9 +46,6 @@ const roleService = {
                 localStorage.setItem('roles', JSON.stringify(response.data));
             })
     },
-    getRole: name => {
-        return this.getRoles().filter(role => role.name === name);
-    },
     getRoles: () => {
         let roles = localStorage.getItem("roles")
         return roles ? JSON.parse(roles) : [];

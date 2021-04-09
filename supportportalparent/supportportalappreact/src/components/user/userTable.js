@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import {DataGrid} from "@material-ui/data-grid";
@@ -7,6 +7,7 @@ function Usertable(props) {
 
     const renderRoleCell = params => {
         const {role} = params.row;
+
         const roleName = role.name ? role.name : role;
         const label = roleName.replace(/^(ROLE_)/,"");
         return <span>{label}</span>;

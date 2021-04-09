@@ -80,7 +80,7 @@ public class UserResource extends ExceptionHandling {
                                            @RequestParam("username") String username,
                                            @RequestParam("email") String email,
                                            @RequestParam("phone") String phone,
-                                           @RequestParam("role") String role,
+                                           @RequestParam("role") Long role,
                                            @RequestParam("isActive") String isActive,
                                            @RequestParam("isNonLocked") String isNonLocked) throws UserNotFoundException, UsernameExistException, EmailExistException {
         User newUser = userService.addNewUser(firstName, middleName, lastName, username, email, phone, role, Boolean.parseBoolean(isNonLocked), Boolean.parseBoolean(isActive));
@@ -95,7 +95,7 @@ public class UserResource extends ExceptionHandling {
                                        @RequestParam("username") String username,
                                        @RequestParam("email") String email,
                                        @RequestParam("phone") String phone,
-                                       @RequestParam("role") String role,
+                                       @RequestParam("role") Long role,
                                        @RequestParam("active") String isActive,
                                        @RequestParam("notLocked") String isNonLocked) throws UserNotFoundException, UsernameExistException, EmailExistException {
         User updatedUser = userService.updateUser(currentUsername, firstName, middleName, lastName, username, email, phone, role, Boolean.parseBoolean(isNonLocked), Boolean.parseBoolean(isActive));

@@ -9,25 +9,46 @@ import roleService from "../../service/role.service";
 
 class UserForm extends Component {
 
-    state = {values: this.props.initialValues}
+    state = {}
+
+    roles = roleService.getRoles();
+
+    componentDidMount() {
+        const {initialValues} = this.props;
+        if(!initialValues.role) {
+            initialValues.role = this.roles.filter(role => role.name === "ROLE_USER")[0];
+        }
+        this.setState({values: {...initialValues, roleId: initialValues.role.id}});
+    }
 
     save = () => {
-        this.props.onSubmit(this.state.values);
+        const user = this.state.values;
+        user.roleId = null;
+        this.props.onSubmit(user);
     }
 
     handleInputChange = e => this.setState({values: {...this.state.values, [e.target.name]: e.target.value}});
 
     handleCheckboxChange = e => this.setState({values: {...this.state.values, [e.target.name]: e.target.checked}});
 
+    handleRoleInputChange = e => {
+        const roleId = e.target.value;
+        const role = this.roles.filter(role => role.id === roleId)[0];
+        this.setState({values: {...this.state.values, role, roleId}});
+    }
+
     getRoles = () => {
-        return roleService.getRoles().map(role => {
-            return <MenuItem key={role.name} value={role.name}>{role.name.replace(/^(ROLE_)/,"")}</MenuItem>
+        return this.roles.sort((a, b) => a.id - b.id).map(role => {
+            return <MenuItem key={role.id} value={role.id}>{role.name.replace(/^(ROLE_)/,"")}</MenuItem>
 
         });
     };
 
     render() {
         const {values} = this.state;
+        if(!values) {
+            return null;
+        }
         const update = !!values.id;
         const roles = this.getRoles();
         return (
@@ -81,15 +102,15 @@ class UserForm extends Component {
                             labelId="role-label"
                             id="role"
                             name="role"
-                            value={values.role}
-                            onChange={this.handleInputChange}
+                            value={values.roleId}
+                            onChange={this.handleRoleInputChange}
                             autoWidth
                         >
                             {roles}
                         </Select>
                     </FormControl>
                     <div>
-                        <Button variant="contained" color="primary" onClick={() => this.save}>{update ? "Update" : "Create"}</Button>
+                        <Button variant="contained" color="primary" onClick={this.save}>{update ? "Update" : "Create"}</Button>
                     </div>
                 </form>
             </div>
