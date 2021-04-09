@@ -24,7 +24,8 @@ class RegisterComponent extends Component {
             middlename: this.state.middleName,
             lastName: this.state.lastName,
             username: this.state.username,
-            email: this.state.email
+            email: this.state.email,
+            phone: this.state.phone
         })
             .then(response => {
                 const message = `A new account was created for ${response.data.firstName}. Please check your email for password to log in.`;
@@ -34,7 +35,8 @@ class RegisterComponent extends Component {
                     middlename: '',
                     lastName: '',
                     username: '',
-                    email: ''
+                    email: '',
+                    phone: ''
                 });
             })
             .catch(e => {
@@ -84,6 +86,12 @@ class RegisterComponent extends Component {
                                onChange={this.handleChange}/>
                         <span className="highlight"></span><span className="bar"></span>
                         <label>Email</label>
+                    </div>
+                    <div className="group">
+                        <input type="text" name="phone" required value={this.state.phone}
+                               onChange={this.handleChange}/>
+                        <span className="highlight"></span><span className="bar"></span>
+                        <label>Phone</label>
                     </div>
                     <button type="button" className="button buttonBlue" onClick={this.registerClicked}>Register
                         <div className="ripples buttonRipples"><span className="ripplesCircle"></span></div>

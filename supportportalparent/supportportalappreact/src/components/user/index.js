@@ -108,7 +108,10 @@ class UserComponent extends Component {
             })
     }
     renderRoleCell = params => {
-        return <span>{params.row.role.name}</span>;
+        const {role} = params.row;
+        const roleName = role.name ? role.name : role;
+        const label = roleName.replace(/^(ROLE_)/,"");
+        return <span>{label}</span>;
 
     }
 
@@ -143,11 +146,12 @@ class UserComponent extends Component {
     };
 
     columns = [
-        {field: 'username', headerName: 'Username', width: 150},
-        {field: 'firstName', headerName: 'First name', width: 200},
-        {field: 'middleName', headerName: 'Middle name', width: 200},
-        {field: 'lastName', headerName: 'Last name', width: 200},
+        {field: 'username', headerName: 'Username', width: 120},
+        {field: 'firstName', headerName: 'First name', width: 170},
+        {field: 'middleName', headerName: 'Middle name', width: 170},
+        {field: 'lastName', headerName: 'Last name', width: 170},
         {field: 'email', headerName: 'Email', width: 200},
+        {field: 'phone', headerName: 'Phone', width: 100},
         {field: 'role', headerName: 'Role', width: 225, renderCell: params => this.renderRoleCell(params)},
         {
             field: 'active',
@@ -162,7 +166,7 @@ class UserComponent extends Component {
             sortable: false,
             filterable: false,
             headerName: "Actions",
-            width: 100,
+            width: 120,
             disableClickEventBubbling: true,
             renderCell: params => this.renderActionsCell(params)
         },

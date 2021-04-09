@@ -20,7 +20,10 @@ class UserForm extends Component {
     handleCheckboxChange = e => this.setState({values: {...this.state.values, [e.target.name]: e.target.checked}});
 
     getRoles = () => {
-        return roleService.getRoles().map(role =><MenuItem key={role.name} value={role.name}>{role.name}</MenuItem>);
+        return roleService.getRoles().map(role => {
+            return <MenuItem key={role.name} value={role.name}>{role.name.replace(/^(ROLE_)/,"")}</MenuItem>
+
+        });
     };
 
     render() {
@@ -59,6 +62,10 @@ class UserForm extends Component {
                     <FormControl margin="normal" fullWidth>
                         <InputLabel htmlFor="email">Email</InputLabel>
                         <Input id="email" name="email" type="email" required value={values.email} onChange={this.handleInputChange}/>
+                    </FormControl>
+                    <FormControl margin="normal" fullWidth>
+                        <InputLabel htmlFor="phone">Phone</InputLabel>
+                        <Input id="phone" name="phone" type="text" required value={values.phone} onChange={this.handleInputChange}/>
                     </FormControl>
                     <FormControl margin="normal" fullWidth>
                         <InputLabel htmlFor="active">Active</InputLabel>
