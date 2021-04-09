@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User addNewUser(String firstName, String middleName, String lastName, String username, String email, String role, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException {
+    public User addNewUser(String firstName, String middleName, String lastName, String username, String email, String phone, String role, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException {
         validateUsernameAndEmail(EMPTY, username, email);
         User user = new User();
         String password = generatePassword();
@@ -116,6 +116,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setJoinDate(LocalDate.now());
         user.setUsername(username);
         user.setEmail(email);
+        user.setPhone(phone);
         user.setPassword(encodePassword(password));
         user.setActive(isActive);
         user.setNotLocked(isNonLocked);
@@ -127,7 +128,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User updateUser(String currentUsername, String newFirstName, String newMiddleName, String newLastName, String newUsername, String newEmail, String roleName, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException {
+    public User updateUser(String currentUsername, String newFirstName, String newMiddleName, String newLastName, String newUsername, String newEmail, String newPhone, String roleName, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException {
         User currentUser = validateUsernameAndEmail(currentUsername, newUsername, newEmail);
         if (currentUser == null) {
             return null;
@@ -137,6 +138,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         currentUser.setLastName(newLastName);
         currentUser.setUsername(newUsername);
         currentUser.setEmail(newEmail);
+        currentUser.setPhone(newPhone);
         currentUser.setActive(isActive);
         currentUser.setNotLocked(isNonLocked);
         Role role = roleRepository.findByName(roleName);

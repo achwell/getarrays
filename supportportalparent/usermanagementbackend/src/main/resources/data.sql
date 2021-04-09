@@ -16,4 +16,4 @@ INSERT INTO roles_privileges VALUES (4, 1);
 INSERT INTO roles_privileges VALUES (4, 2);
 INSERT INTO roles_privileges VALUES (4, 3);
 INSERT INTO roles_privileges VALUES (4, 4);
-INSERT INTO user VALUES (1, 'axelwulff@mac.com', 'Axel', 1, 1, '2021-03-30', NULL, NULL, 'Sæther', 'Wulff', '$2a$10$Ur5Hch5tPtFPSo2UfMbSyu0SsE7zOCUThKFSloaCAbUuIGOrEMjFy', 'axelwulff', 4);
+INSERT INTO user VALUES (1, 'axelwulff@mac.com', 'Axel', 1, 1, '2021-03-30', NULL, NULL, 'Sæther', 'Wulff', '$2a$10$Ur5Hch5tPtFPSo2UfMbSyu0SsE7zOCUThKFSloaCAbUuIGOrEMjFy', 'axelwulff', 4, '90086954');

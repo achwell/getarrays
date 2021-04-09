@@ -35,6 +35,9 @@ public class User implements Serializable {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
+    private String phone;
+
     private LocalDateTime lastLoginDate;
 
     private LocalDateTime lastLoginDateDisplay;
@@ -52,7 +55,7 @@ public class User implements Serializable {
     public User() {
     }
 
-    public User(Long id, String firstName, String middleName, String lastName, String username, String password, String email, LocalDateTime lastLoginDate, LocalDateTime lastLoginDateDisplay, LocalDate joinDate, Role role, boolean isActive, boolean isNotLocked) {
+    public User(Long id, String firstName, String middleName, String lastName, String username, String password, String email, String phone, LocalDateTime lastLoginDate, LocalDateTime lastLoginDateDisplay, LocalDate joinDate, Role role, boolean isActive, boolean isNotLocked) {
         this.id = id;
         this.firstName = firstName;
         this.middleName = middleName;
@@ -60,6 +63,7 @@ public class User implements Serializable {
         this.username = username;
         this.password = password;
         this.email = email;
+        this.phone = phone;
         this.lastLoginDate = lastLoginDate;
         this.lastLoginDateDisplay = lastLoginDateDisplay;
         this.joinDate = joinDate;
@@ -122,6 +126,14 @@ public class User implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public LocalDateTime getLastLoginDate() {

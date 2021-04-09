@@ -16,6 +16,8 @@ export class User {
 
   email: string;
 
+  phone: phone;
+
   lastLoginDate: Date;
 
   lastLoginDateDisplay: Date;
