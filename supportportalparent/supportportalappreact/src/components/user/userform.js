@@ -1,6 +1,6 @@
-import React, {Component} from 'react';
+import React, {forwardRef, useEffect, useImperativeHandle, useState} from 'react';
 import PropTypes from 'prop-types';
-import {Button, Checkbox, Input, InputLabel} from "@material-ui/core";
+import {Checkbox, Input, InputLabel} from "@material-ui/core";
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
@@ -8,134 +8,143 @@ import {withSnackbar} from "notistack";
 import roleService from "../../service/role.service";
 import authenticationService from "../../service/autehentication.service";
 
-class UserForm extends Component {
+const UserForm = forwardRef((props, ref) => {
+    useImperativeHandle(
+        ref,
+        () => ({
+            doSave() {
+                save();
+            }
+        }),
+    )
 
-    state = {userId: null, values: null}
+    const [userId, setUserId] = useState(null);
+    const [user, setUser] = useState(props.initialValues);
 
-    roles = roleService.getRoles();
+    const {readOnly} = props;
 
-    componentDidMount() {
-        const {initialValues} = this.props;
-        if(!initialValues.role) {
-            initialValues.role = this.roles.filter(role => role.name === "ROLE_USER")[0];
+    const roles = roleService.getRoles();
+
+    useEffect(() => {
+        const currentUser = authenticationService.getUserFromLocalCache();
+        if (currentUser) {
+            setUserId(currentUser.id);
         }
-        const user = authenticationService.getUserFromLocalCache();
-        this.setState({values: {...initialValues, roleId: initialValues.role.id}, userId: user.id});
-    }
+    }, []);
 
-    isEditProfile() {
-        return this.state.userId === this.state.values.id;
-    }
+    const isEditProfile = () => userId === user.id
 
-    save = () => {
-        const user = this.state.values;
+    const isUpdate = () => !!user.id;
+
+    const save = () => {
         user.roleId = null;
-        this.props.onSubmit(user);
+        props.onSubmit(user);
     }
 
-    handleInputChange = e => {
-        if(!this.props.readOnly) {
-            this.setState({values: {...this.state.values, [e.target.name]: e.target.value}});
+    const handleInputChange = e => {
+        if (!props.readOnly) {
+            setUser({...user, [e.target.name]: e.target.value});
         }
     };
 
-    handleCheckboxChange = e => {
-        if(!this.props.readOnly && !this.isEditProfile()) {
-            this.setState({values: {...this.state.values, [e.target.name]: e.target.checked}});
+    const handleCheckboxChange = e => {
+        if (!props.readOnly && !isEditProfile()) {
+            setUser({...user, [e.target.name]: e.target.checked});
         }
     };
 
-    handleRoleInputChange = e => {
-        if(!this.props.readOnly && !this.isEditProfile()) {
+    const handleRoleInputChange = e => {
+        if (!props.readOnly && !isEditProfile()) {
             const roleId = e.target.value;
-            const role = this.roles.filter(role => role.id === roleId)[0];
-            this.setState({values: {...this.state.values, role, roleId}});
+            const role = roles.filter(role => role.id === roleId)[0];
+            setUser({...user, role, roleId});
         }
     }
 
-    getRoles = () => {
-        return this.roles.sort((a, b) => a.id - b.id).map(role => {
-            return <MenuItem key={role.id} value={role.id}>{role.name.replace(/^(ROLE_)/,"")}</MenuItem>
+    const getRoles = () => {
+        return roles.sort((a, b) => a.id - b.id).map(role => {
+            return <MenuItem key={role.id} value={role.id}>{role.name.replace(/^(ROLE_)/, "")}</MenuItem>
 
         });
     };
 
-    render() {
-        const {values} = this.state;
-        if(!values) {
-            return null;
-        }
-        const update = !!values.id;
-        const roles = this.getRoles();
-        const {readOnly} = this.props;
-
-        return (
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    margin: 20,
-                    padding: 20
-                }}
-            >
-                <form style={{width: "100%"}} autoComplete="off">
-                    <FormControl margin="normal" fullWidth>
-                        <InputLabel htmlFor="username">Username</InputLabel>
-                        <Input id="username" name="username" readOnly={update || readOnly || this.state.userId === this.state.values.id}  type="text" required value={values.username}
-                               onChange={this.handleInputChange}/>
-                    </FormControl>
-                    <FormControl margin="normal" fullWidth>
-                        <InputLabel htmlFor="firstName">First name</InputLabel>
-                        <Input id="firstName" name="firstName" readOnly={readOnly} type="text" required value={values.firstName}
-                               onChange={this.handleInputChange}/>
-                    </FormControl>
-                    <FormControl margin="normal" fullWidth>
-                        <InputLabel htmlFor="middleName">Middle name</InputLabel>
-                        <Input id="middleName" name="middleName" readOnly={readOnly} type="text" value={values.middleName} onChange={this.handleInputChange}/>
-                    </FormControl>
-                    <FormControl margin="normal" fullWidth>
-                        <InputLabel htmlFor="lastName">Last name</InputLabel>
-                        <Input id="lastName" name="lastName" readOnly={readOnly} type="text" required value={values.lastName}
-                               onChange={this.handleInputChange}/>
-                    </FormControl>
-                    <FormControl margin="normal" fullWidth>
-                        <InputLabel htmlFor="email">Email</InputLabel>
-                        <Input id="email" name="email" readOnly={readOnly} type="email" required value={values.email} onChange={this.handleInputChange}/>
-                    </FormControl>
-                    <FormControl margin="normal" fullWidth>
-                        <InputLabel htmlFor="phone">Phone</InputLabel>
-                        <Input id="phone" name="phone" readOnly={readOnly} type="text" required value={values.phone} onChange={this.handleInputChange}/>
-                    </FormControl>
-                    <FormControl margin="normal" fullWidth>
-                        <InputLabel htmlFor="active">Active</InputLabel>
-                        <Checkbox id="active" name="active" readOnly={readOnly || this.isEditProfile()} checked={values.active} onChange={this.handleCheckboxChange}/>
-                    </FormControl>
-                    <FormControl margin="normal" fullWidth>
-                        <InputLabel htmlFor="notLocked">Not Locked</InputLabel>
-                        <Checkbox id="notLocked" name="notLocked" readOnly={readOnly || this.isEditProfile()} checked={values.notLocked} onChange={this.handleCheckboxChange}/>
-                    </FormControl>
-                    <FormControl margin="normal" fullWidth>
-                        <InputLabel id="role-label">Role</InputLabel>
-                        <Select
-                            labelId="role-label"
-                            id="role"
-                            name="role"
-                            readOnly={readOnly || this.isEditProfile()}
-                            value={values.roleId}
-                            onChange={this.handleRoleInputChange}
-                            autoWidth
-                        >
-                            {roles}
-                        </Select>
-                    </FormControl>
-                    <div>
-                        <Button variant="contained" color="primary" disabled={readOnly} onClick={this.save}>{update ? "Update" : "Create"}</Button>
-                    </div>
-                </form>
-            </div>
-        )
+    if (!user) {
+        return null;
     }
-}
+
+    return (
+        <div
+            style={{
+                display: "flex",
+                justifyContent: "center",
+                margin: 0,
+                padding: 0
+            }}
+        >
+            <form style={{width: "100%"}} autoComplete="off">
+                <FormControl margin="normal" fullWidth>
+                    <InputLabel htmlFor="username">Username</InputLabel>
+                    <Input id="username" name="username"
+                           readOnly={readOnly || isUpdate()} type="text" required
+                           value={user.username}
+                           onChange={handleInputChange}/>
+                </FormControl>
+                <FormControl margin="normal" fullWidth>
+                    <InputLabel htmlFor="firstName">First name</InputLabel>
+                    <Input id="firstName" name="firstName" readOnly={readOnly} type="text" required
+                           value={user.firstName}
+                           onChange={handleInputChange}/>
+                </FormControl>
+                <FormControl margin="normal" fullWidth>
+                    <InputLabel htmlFor="middleName">Middle name</InputLabel>
+                    <Input id="middleName" name="middleName" readOnly={readOnly} type="text"
+                           value={user.middleName} onChange={handleInputChange}/>
+                </FormControl>
+                <FormControl margin="normal" fullWidth>
+                    <InputLabel htmlFor="lastName">Last name</InputLabel>
+                    <Input id="lastName" name="lastName" readOnly={readOnly} type="text" required
+                           value={user.lastName}
+                           onChange={handleInputChange}/>
+                </FormControl>
+                <FormControl margin="normal" fullWidth>
+                    <InputLabel htmlFor="email">Email</InputLabel>
+                    <Input id="email" name="email" readOnly={readOnly} type="email" required value={user.email}
+                           onChange={handleInputChange}/>
+                </FormControl>
+                <FormControl margin="normal" fullWidth>
+                    <InputLabel htmlFor="phone">Phone</InputLabel>
+                    <Input id="phone" name="phone" readOnly={readOnly} type="text" required value={user.phone}
+                           onChange={handleInputChange}/>
+                </FormControl>
+                <FormControl margin="normal" fullWidth>
+                    <InputLabel htmlFor="active">Active</InputLabel>
+                    <Checkbox id="active" name="active" readOnly={readOnly || isEditProfile()}
+                              checked={user.active} onChange={handleCheckboxChange}/>
+                </FormControl>
+                <FormControl margin="normal" fullWidth>
+                    <InputLabel htmlFor="notLocked">Not Locked</InputLabel>
+                    <Checkbox id="notLocked" name="notLocked" readOnly={readOnly || isEditProfile()}
+                              checked={user.notLocked} onChange={handleCheckboxChange}/>
+                </FormControl>
+                <FormControl margin="normal" fullWidth>
+                    <InputLabel id="role-label">Role</InputLabel>
+                    <Select
+                        labelId="role-label"
+                        id="role"
+                        name="role"
+                        readOnly={readOnly || isEditProfile()}
+                        value={user.roleId}
+                        onChange={handleRoleInputChange}
+                        autoWidth
+                    >
+                        {getRoles()}
+                    </Select>
+                </FormControl>
+            </form>
+        </div>
+    )
+
+});
 
 UserForm.propTypes = {
     initialValues: PropTypes.object,

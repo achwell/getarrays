@@ -1,4 +1,4 @@
-import React, {forwardRef, Fragment, useImperativeHandle, useState, useEffect} from "react";
+import React, {forwardRef, Fragment, useEffect, useImperativeHandle, useRef, useState} from "react";
 import {useHistory} from "react-router-dom";
 import {withSnackbar} from "notistack";
 import authenticationService from "../../service/autehentication.service";
@@ -47,6 +47,8 @@ const UserComponent = forwardRef((props, ref) => {
         loadData(false);
     }, []);
 
+    const userFormRef = useRef();
+
     const readOnly = (selectedUsername && !canUpdate) || (!selectedUsername && !canCreate);
     const username = authenticationService.getUsername();
 
@@ -77,6 +79,7 @@ const UserComponent = forwardRef((props, ref) => {
                 isActive: false,
                 isNonLocked: false,
                 role,
+                roleId: role.id
             };
             setSelectedUsername(user.username);
             setSelectedName(selectedName);
@@ -90,6 +93,7 @@ const UserComponent = forwardRef((props, ref) => {
             const selectedName = getFullName(user);
             setSelectedUsername(user.username);
             setSelectedName(selectedName);
+            user.roleId = user.role.id
             setSelectedUser(user);
             setEditOpen(true);
         }
@@ -100,6 +104,7 @@ const UserComponent = forwardRef((props, ref) => {
         const selectedName = getFullName(user);
         setSelectedUsername(user.username);
         setSelectedName(selectedName);
+        user.roleId = user.role.id
         setSelectedUser(user);
         setEditOpen(true);
     }
@@ -185,8 +190,8 @@ const UserComponent = forwardRef((props, ref) => {
                     Vil du slette {selectedUsername + ": " + selectedName}?
                 </div>
             </Modal>
-            <Modal isOpen={editOpen} handleClose={() => setEditOpen(false)} title={update ? "Update user": "Create User"} handleAction={() => console.log("SAVE")} actionTitle={update ? "Update" : "Create"}>
-                <UserForm initialValues={selectedUser} onSubmit={update ? doUpdateUser : doCreateUser} readOnly={readOnly}/>
+            <Modal isOpen={editOpen} handleClose={() => setEditOpen(false)} title={update ? "Update user" : "Create User"} handleAction={() => userFormRef.current.doSave()} actionTitle={update ? "Update" : "Create"}>
+                <UserForm ref={userFormRef} initialValues={selectedUser} onSubmit={update ? doUpdateUser : doCreateUser} readOnly={readOnly}/>
             </Modal>
         </Fragment>
     )

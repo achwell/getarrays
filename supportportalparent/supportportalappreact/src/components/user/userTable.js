@@ -20,7 +20,7 @@ function Usertable(props) {
     const renderStatusCell = params => {
         const {active, notLocked} = params.row;
         let lockIcon = notLocked ? "lock_open" : "lock";
-        let title = notLocked ? "Open" : "Locked";
+        let title = notLocked ? "Unlocked" : "Locked";
         let lockClass = notLocked ? "green" : "red";
         let activeIcon = active ? "check_circle_outline" : "highlight_off";
         let activeTitle = active ? "Active" : "Inactive";
