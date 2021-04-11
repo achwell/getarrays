@@ -6,10 +6,11 @@ import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
 import {withSnackbar} from "notistack";
 import roleService from "../../service/role.service";
+import authenticationService from "../../service/autehentication.service";
 
 class UserForm extends Component {
 
-    state = {}
+    state = {userId: null, values: null}
 
     roles = roleService.getRoles();
 
@@ -18,7 +19,12 @@ class UserForm extends Component {
         if(!initialValues.role) {
             initialValues.role = this.roles.filter(role => role.name === "ROLE_USER")[0];
         }
-        this.setState({values: {...initialValues, roleId: initialValues.role.id}});
+        const user = authenticationService.getUserFromLocalCache();
+        this.setState({values: {...initialValues, roleId: initialValues.role.id}, userId: user.id});
+    }
+
+    isEditProfile() {
+        return this.state.userId === this.state.values.id;
     }
 
     save = () => {
@@ -34,13 +40,13 @@ class UserForm extends Component {
     };
 
     handleCheckboxChange = e => {
-        if(!this.props.readOnly) {
+        if(!this.props.readOnly && !this.isEditProfile()) {
             this.setState({values: {...this.state.values, [e.target.name]: e.target.checked}});
         }
     };
 
     handleRoleInputChange = e => {
-        if(!this.props.readOnly) {
+        if(!this.props.readOnly && !this.isEditProfile()) {
             const roleId = e.target.value;
             const role = this.roles.filter(role => role.id === roleId)[0];
             this.setState({values: {...this.state.values, role, roleId}});
@@ -75,7 +81,7 @@ class UserForm extends Component {
                 <form style={{width: "100%"}} autoComplete="off">
                     <FormControl margin="normal" fullWidth>
                         <InputLabel htmlFor="username">Username</InputLabel>
-                        <Input id="username" name="username" readOnly={update || readOnly}  type="text" required value={values.username}
+                        <Input id="username" name="username" readOnly={update || readOnly || this.state.userId === this.state.values.id}  type="text" required value={values.username}
                                onChange={this.handleInputChange}/>
                     </FormControl>
                     <FormControl margin="normal" fullWidth>
@@ -102,11 +108,11 @@ class UserForm extends Component {
                     </FormControl>
                     <FormControl margin="normal" fullWidth>
                         <InputLabel htmlFor="active">Active</InputLabel>
-                        <Checkbox id="active" name="active" readOnly={readOnly} checked={values.active} onChange={this.handleCheckboxChange}/>
+                        <Checkbox id="active" name="active" readOnly={readOnly || this.isEditProfile()} checked={values.active} onChange={this.handleCheckboxChange}/>
                     </FormControl>
                     <FormControl margin="normal" fullWidth>
                         <InputLabel htmlFor="notLocked">Not Locked</InputLabel>
-                        <Checkbox id="notLocked" name="notLocked" readOnly={readOnly} checked={values.notLocked} onChange={this.handleCheckboxChange}/>
+                        <Checkbox id="notLocked" name="notLocked" readOnly={readOnly || this.isEditProfile()} checked={values.notLocked} onChange={this.handleCheckboxChange}/>
                     </FormControl>
                     <FormControl margin="normal" fullWidth>
                         <InputLabel id="role-label">Role</InputLabel>
@@ -114,7 +120,7 @@ class UserForm extends Component {
                             labelId="role-label"
                             id="role"
                             name="role"
-                            readOnly={readOnly}
+                            readOnly={readOnly || this.isEditProfile()}
                             value={values.roleId}
                             onChange={this.handleRoleInputChange}
                             autoWidth
@@ -129,7 +135,6 @@ class UserForm extends Component {
             </div>
         )
     }
-
 }
 
 UserForm.propTypes = {

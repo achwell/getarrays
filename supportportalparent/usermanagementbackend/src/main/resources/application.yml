@@ -22,6 +22,11 @@ spring:
 jwt:
   secret: '[a-zA-Z0-9._]^+$Guidelines89797987forAlphabeticalArraNumeralsandOtherSymbo$'
 
+app:
+  corsallowedorigins:
+    - http://localhost:3000
+    - http://localhost:4200
+
 logging:
   level:
     web: debug

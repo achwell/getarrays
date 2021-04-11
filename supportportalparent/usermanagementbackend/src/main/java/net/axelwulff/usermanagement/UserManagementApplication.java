@@ -1,5 +1,7 @@
 package net.axelwulff.usermanagement;
 
+import net.axelwulff.usermanagement.configuration.AppProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -24,13 +26,15 @@ public class UserManagementApplication {
         return new BCryptPasswordEncoder();
     }
 
+    @Autowired
+    private AppProperties appProperties;
 
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowCredentials(true);
-        corsConfiguration.setAllowedOrigins(asList("http://localhost:3000", "http://localhost:4200"));
+        corsConfiguration.setAllowedOrigins(appProperties.getCorsallowedorigins());
         corsConfiguration.setAllowedHeaders(asList(ORIGIN, ACCESS_CONTROL_ALLOW_ORIGIN, CONTENT_TYPE,
                 ACCEPT, "Jwt-Token", AUTHORIZATION, "Origin, Accept", "X-Requested-With",
                 ACCESS_CONTROL_REQUEST_METHOD, ACCESS_CONTROL_REQUEST_HEADERS));

@@ -14,7 +14,7 @@ import authenticationService from "./service/autehentication.service";
 import LoginComponent from "./components/login";
 import RegisterComponent from "./components/register";
 import UserComponent from "./components/user";
-import LogInOutButton from "./components/logInOutButton/ loginoutbutton";
+import UserActions from "./components/useractions/useractions";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -39,6 +39,8 @@ function App(props) {
 
     const [isLoggedIn, setIsLoggedIn] = useState(authenticationService.isLoggedIn());
 
+    const userProfile = () => userComponentRef.current.userProfile();
+
     return (
         <Router>
             <AppBar position="static" className={classes.root}>
@@ -57,16 +59,7 @@ function App(props) {
                         <AddIcon/>
                     </IconButton>
                     }
-                    <IconButton
-                        edge="start"
-                        className={classes.button}
-                        color="primary"
-                        aria-label="User Profile"
-                        onClick={() => userComponentRef.current.userProfile()}
-                    >
-                        <AddIcon/>
-                    </IconButton>
-                    <LogInOutButton isLoggedIn={isLoggedIn} callBack={setIsLoggedIn}/>
+                    <UserActions isLoggedIn={isLoggedIn} logInAction={setIsLoggedIn} logOutAction={setIsLoggedIn} profileAction={userProfile}/>
                 </Toolbar>
             </AppBar>
             <Switch>

@@ -185,7 +185,7 @@ const UserComponent = forwardRef((props, ref) => {
                     Vil du slette {selectedUsername + ": " + selectedName}?
                 </div>
             </Modal>
-            <Modal isOpen={editOpen} handleClose={() => setEditOpen(false)} title={update ? "Update user": "Create User"}>
+            <Modal isOpen={editOpen} handleClose={() => setEditOpen(false)} title={update ? "Update user": "Create User"} handleAction={() => console.log("SAVE")} actionTitle={update ? "Update" : "Create"}>
                 <UserForm initialValues={selectedUser} onSubmit={update ? doUpdateUser : doCreateUser} readOnly={readOnly}/>
             </Modal>
         </Fragment>
