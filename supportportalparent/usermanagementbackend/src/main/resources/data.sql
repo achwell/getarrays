@@ -17,3 +17,4 @@ INSERT INTO roles_privileges VALUES (4, 2);
 INSERT INTO roles_privileges VALUES (4, 3);
 INSERT INTO roles_privileges VALUES (4, 4);
 INSERT INTO user VALUES (1, 'axelwulff@mac.com', 'Axel', 1, 1, '2021-03-30', NULL, NULL, 'Sæther', 'Wulff', '$2a$10$z5a4ZUrELC7vfjYCRxXIk.LU2RuVHk9U5S0WePPYvOgbIafJ93dvK', 'axelwulff', 4, '90086954');
+INSERT INTO user_seq VALUES (2);

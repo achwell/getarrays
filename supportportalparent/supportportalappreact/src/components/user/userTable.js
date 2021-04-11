@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { compareAsc, format } from 'date-fns'
+
 import {DataGrid} from "@material-ui/data-grid";
 
 function Usertable(props) {
@@ -9,9 +11,11 @@ function Usertable(props) {
         const {role} = params.row;
 
         const roleName = role.name ? role.name : role;
-        const label = roleName.replace(/^(ROLE_)/,"");
+        const label = roleName.replace(/^(ROLE_)/, "");
         return <span>{label}</span>;
     }
+
+    const renderDateCell = params => <span>{params.value ? format(new Date(params.value), 'yyyy-MM-dd') : ''}</span>
 
     const renderStatusCell = params => {
         const {active, notLocked} = params.row;
@@ -44,13 +48,24 @@ function Usertable(props) {
     };
 
     const columns = [
-        {field: 'username', headerName: 'Username', width: 120},
-        {field: 'firstName', headerName: 'First name', width: 170},
-        {field: 'middleName', headerName: 'Middle name', width: 170},
-        {field: 'lastName', headerName: 'Last name', width: 170},
-        {field: 'email', headerName: 'Email', width: 200},
+        {field: 'username', headerName: 'Username', width: 100},
+        {field: 'firstName', headerName: 'First name', width: 150},
+        {field: 'middleName', headerName: 'Middle name', width: 150},
+        {field: 'lastName', headerName: 'Last name', width: 150},
+        {field: 'email', headerName: 'Email', width: 175},
         {field: 'phone', headerName: 'Phone', width: 100},
-        {field: 'role', headerName: 'Role', width: 225, renderCell: params => renderRoleCell(params)},
+        {field: 'role', headerName: 'Role', width: 200, renderCell: params => renderRoleCell(params)},
+        props.canSeeLogintime && {
+            field: 'joinDate',
+            headerName: 'Join date',
+            renderCell: params => renderDateCell(params)
+
+        },
+        props.canSeeLogintime && {
+            field: 'lastLoginDate',
+            headerName: 'Last login date',
+            renderCell: params => renderDateCell(params)
+        },
         {
             field: 'active',
             headerName: 'Status',
@@ -84,6 +99,7 @@ Usertable.propTypes = {
     delete: PropTypes.func.isRequired,
     canUpdate: PropTypes.bool.isRequired,
     canDelete: PropTypes.bool.isRequired,
+    canSeeLogintime: PropTypes.bool.isRequired,
     username: PropTypes.string
 }
 export default Usertable;

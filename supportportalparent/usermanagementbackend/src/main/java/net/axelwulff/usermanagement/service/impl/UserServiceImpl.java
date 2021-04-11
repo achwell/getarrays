@@ -3,7 +3,10 @@ package net.axelwulff.usermanagement.service.impl;
 import net.axelwulff.usermanagement.domain.Role;
 import net.axelwulff.usermanagement.domain.User;
 import net.axelwulff.usermanagement.domain.UserPrincipal;
-import net.axelwulff.usermanagement.exception.*;
+import net.axelwulff.usermanagement.exception.EmailExistException;
+import net.axelwulff.usermanagement.exception.EmailNotFoundException;
+import net.axelwulff.usermanagement.exception.UserNotFoundException;
+import net.axelwulff.usermanagement.exception.UsernameExistException;
 import net.axelwulff.usermanagement.repository.RoleRepository;
 import net.axelwulff.usermanagement.repository.UserRepository;
 import net.axelwulff.usermanagement.service.EmailService;
@@ -66,7 +69,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User register(String firstName, String middleName, String lastName, String username, String email) throws UserNotFoundException, UsernameExistException, EmailExistException {
+    public User register(String firstName, String middleName, String lastName, String username, String email, String phone) throws UserNotFoundException, UsernameExistException, EmailExistException {
         validateUsernameAndEmail(EMPTY, username, email);
         User user = new User();
         String password = generatePassword();
@@ -75,9 +78,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setLastName(lastName);
         user.setUsername(username);
         user.setEmail(email);
+        user.setPhone(phone);
         user.setJoinDate(LocalDate.now());
         user.setPassword(encodePassword(password));
-        user.setActive(true);
+        user.setActive(false);
         user.setNotLocked(true);
         Role role = roleRepository.findByName("ROLE_USER");
         user.setRole(role);
@@ -103,45 +107,25 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User addNewUser(String firstName, String middleName, String lastName, String username, String email, String phone, Long roleId, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException, RoleNotFoundException {
-        validateUsernameAndEmail(EMPTY, username, email);
-        User user = new User();
+    public User addNewUser(User user) throws UserNotFoundException, EmailExistException, UsernameExistException {
+        validateUsernameAndEmail(EMPTY, user.getUsername(), user.getEmail());
         String password = generatePassword();
-        user.setFirstName(firstName);
-        user.setMiddleName(middleName);
-        user.setLastName(lastName);
-        user.setJoinDate(LocalDate.now());
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setPhone(phone);
         user.setPassword(encodePassword(password));
-        user.setActive(isActive);
-        user.setNotLocked(isNonLocked);
-        Role userRole = roleRepository.findById(roleId).orElseThrow(() -> new RoleNotFoundException("No role found with id " + roleId));
-        user.setRole(userRole);
+        user.setJoinDate(LocalDate.now());
         userRepository.save(user);
+        emailService.sendNewPasswordEmail(user.getFirstName(), password, user.getEmail());
         LOGGER.info("New user password: " + password);
         return user;
     }
 
     @Override
-    public User updateUser(String currentUsername, String newFirstName, String newMiddleName, String newLastName, String newUsername, String newEmail, String newPhone, Long roleId, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException, RoleNotFoundException {
-        User currentUser = validateUsernameAndEmail(currentUsername, newUsername, newEmail);
-        if (currentUser == null) {
+    public User updateUser(String currentUsername, User user) throws UsernameExistException, EmailExistException, UserNotFoundException {
+        if (user == null) {
             return null;
         }
-        currentUser.setFirstName(newFirstName);
-        currentUser.setMiddleName(newMiddleName);
-        currentUser.setLastName(newLastName);
-        currentUser.setUsername(newUsername);
-        currentUser.setEmail(newEmail);
-        currentUser.setPhone(newPhone);
-        currentUser.setActive(isActive);
-        currentUser.setNotLocked(isNonLocked);
-        Role role = roleRepository.findById(roleId).orElseThrow(() -> new RoleNotFoundException("No role found with id " + roleId));
-        currentUser.setRole(role);
-        userRepository.save(currentUser);
-        return currentUser;
+        validateUsernameAndEmail(currentUsername, user.getUsername(), user.getEmail());
+        userRepository.save(user);
+        return user;
     }
 
     @Override
@@ -182,7 +166,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
-    private User validateUsernameAndEmail(String currentUsername, String newUsername, String newEmail) throws UserNotFoundException, UsernameExistException, EmailExistException {
+    private void validateUsernameAndEmail(String currentUsername, String newUsername, String newEmail) throws UserNotFoundException, UsernameExistException, EmailExistException {
         User userByNewUsername = findUserByUsername(newUsername);
         User userByNewEmail = findUserByEmail(newEmail);
         if (isNotBlank(currentUsername)) {
@@ -196,7 +180,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             if (userByNewEmail != null && !Objects.equals(currentUser.getId(), userByNewEmail.getId())) {
                 throw new EmailExistException(EMAIL_ALREADY_EXISTS);
             }
-            return currentUser;
         } else {
             if (userByNewUsername != null) {
                 throw new UsernameExistException(USERNAME_ALREADY_EXISTS);
@@ -204,7 +187,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             if (userByNewEmail != null) {
                 throw new EmailExistException(EMAIL_ALREADY_EXISTS);
             }
-            return null;
         }
     }
 }

@@ -1,69 +1,144 @@
-import React, {Component, Fragment} from 'react';
-import {withRouter} from "react-router-dom";
+import React, {forwardRef, Fragment, useImperativeHandle, useState, useEffect} from "react";
+import {useHistory} from "react-router-dom";
 import {withSnackbar} from "notistack";
 import authenticationService from "../../service/autehentication.service";
 import userService from "../../service/user.service";
 import {Modal} from "../modal/modal";
 import UserForm from "./userform";
 import Usertable from "./userTable";
+import roleService from "../../service/role.service";
 
-class UserComponent extends Component {
+const UserComponent = forwardRef((props, ref) => {
+    useImperativeHandle(
+        ref,
+        () => ({
+            create() {
+                initCreateUser();
+            },
+            userProfile() {
+                initUserProfile();
+            }
+        }),
+    )
 
-    state = {
-        users: [],
-        deleteOpen: false,
-        editOpen: false,
-        selectedUsername: null,
-        selectedName: null,
-        selectedUser: null
+    const [users, setUsers] = useState([]);
+    const [editOpen, setEditOpen] = useState(false);
+    const [deleteOpen, setDeleteOpen] = useState(false);
+    const [selectedUsername, setSelectedUsername] = useState(null);
+    const [selectedName, setSelectedName] = useState(null);
+    const [selectedUser, setSelectedUser] = useState(null);
+
+    const canCreate = authenticationService.hasPrivilege("user:create");
+    const canRead = authenticationService.hasPrivilege("user:read");
+    const canUpdate = authenticationService.hasPrivilege("user:update");
+    const canDelete = authenticationService.hasPrivilege("user:delete");
+    const canSeeLogintime = authenticationService.hasPrivilege("user:seelogintime");
+
+    const history = useHistory();
+
+    if (!canRead) {
+        authenticationService.logout();
+    }
+    if (!authenticationService.isLoggedIn()) {
+        history.push("/login");
     }
 
-    componentDidMount() {
-        this.loadData(false);
-    }
+    useEffect(() => {
+        loadData(false);
+    }, []);
 
-    loadData(writeMessage) {
+    const readOnly = (selectedUsername && !canUpdate) || (!selectedUsername && !canCreate);
+    const username = authenticationService.getUsername();
+
+    const loadData = showMessage => {
         userService.getUsers()
             .then(response => {
                 const users = response.data;
-                if(writeMessage) {
-                    this.props.enqueueSnackbar(users.length + " users loaded.", {variant: 'success'});
+                if (showMessage) {
+                    props.enqueueSnackbar(users.length + " users loaded.", {variant: 'success'});
                 }
-                this.setState({users});
+                setUsers(users);
             })
-            .catch(e => this.handleError(e))
+            .catch(e => handleError(e))
     }
 
-    canCreate = authenticationService.hasPrivilege("user:create");
-    canRead = authenticationService.hasPrivilege("user:read");
-    canUpdate = authenticationService.hasPrivilege("user:update");
-    canDelete = authenticationService.hasPrivilege("user:delete");
-    username = authenticationService.getUsername();
-
-    initEdit = user => {
-        let selectedName = this.getFullName(user);
-        this.setState({editOpen: true, deleteOpen: false, selectedUsername: user.username, selectedName, selectedUser: user});
+    const initCreateUser = () => {
+        if (canCreate) {
+            const selectedName = '';
+            const role = roleService.getRoles().filter(r => r.name === 'ROLE_USER')[0];
+            const user = {
+                id: null,
+                firstName: "",
+                middleName: "",
+                lastName: "",
+                username: "",
+                email: "",
+                phone: "",
+                isActive: false,
+                isNonLocked: false,
+                role,
+            };
+            setSelectedUsername(user.username);
+            setSelectedName(selectedName);
+            setSelectedUser(user);
+            setEditOpen(true);
+        }
     }
 
-    initDelete = user => {
-        let selectedName = this.getFullName(user);
-        this.setState({deleteOpen: true, editOpen: false, selectedUsername: user.username, selectedName, selectedUser: user});
+    const initUpdateUser = user => {
+        if (canRead || canUpdate) {
+            const selectedName = getFullName(user);
+            setSelectedUsername(user.username);
+            setSelectedName(selectedName);
+            setSelectedUser(user);
+            setEditOpen(true);
+        }
     }
 
-    doDelete = () => {
-        userService.deleteUser(this.state.selectedUsername)
-            .then(response => this.handleResponse("deleted"))
-            .catch(e => this.handleError(e, () => this.state({deleteOpen: false, editOpen: false})));
+    const initUserProfile = () => {
+        const user = authenticationService.getUserFromLocalCache();
+        const selectedName = getFullName(user);
+        setSelectedUsername(user.username);
+        setSelectedName(selectedName);
+        setSelectedUser(user);
+        setEditOpen(true);
     }
 
-    doUpdateUser = (user) => {
-        const formData = userService.createUserFormData(this.state.selectedUsername, user);
-        userService.updateUser(formData)
-            .then(response => this.handleResponse("updated"))
-            .catch(e => this.handleError(e, () => this.state({deleteOpen: false, editOpen: false})));
+    const initDeleteUser = user => {
+        if (canDelete) {
+            const selectedName = getFullName(user);
+            setSelectedUsername(user.username);
+            setSelectedName(selectedName);
+            setSelectedUser(user);
+            setDeleteOpen(true);
+        }
     }
 
-    getFullName = user => {
+    const doCreateUser = user => {
+        userService.addUser(user)
+            .then(response => handleResponseOk("updated"))
+            .catch(e => handleError(e, () => setEditOpen(false)));
+    }
+
+    const doUpdateUser = (user) => {
+        userService.updateUser(user)
+            .then(response => handleResponseOk("updated"))
+            .catch(e => handleError(e, () => {
+                setDeleteOpen(false);
+                setEditOpen(false);
+            }));
+    }
+
+    const doDeleteUser = () => {
+        userService.deleteUser(selectedUsername)
+            .then(response => handleResponseOk("deleted"))
+            .catch(e => handleError(e, () => {
+                setDeleteOpen(false);
+                setEditOpen(false);
+            }));
+    }
+
+    const getFullName = user => {
         let selectedName = user.firstName;
         if (user.middleName) {
             selectedName += " " + user.middleName;
@@ -72,61 +147,50 @@ class UserComponent extends Component {
         return selectedName;
     }
 
-    handleResponse(action) {
-        this.props.enqueueSnackbar("User " + this.state.selectedName + " " + action + ".", {variant: 'success'});
-        this.setState({
-            deleteOpen: false,
-            editOpen: false,
-            selectedUsername: null,
-            selectedName: null,
-            selectedUser: null
-        });
-        this.loadData(false);
+    const handleResponseOk = action => {
+        props.enqueueSnackbar("User " + selectedName + " " + action + ".", {variant: 'success'});
+        setDeleteOpen(false);
+        setEditOpen(false);
+        setSelectedUser(null);
+        setSelectedName(null);
+        setSelectedUsername(null);
+        loadData(false);
     }
 
-    handleError = (e, callback) => {
+    const handleError = (e, callback) => {
         let error = "";
         if (e.response) {
             error = e.response.data.message;
         } else if (e.message) {
             error = e.message;
         }
-        this.setState({
-            deleteOpen: false,
-            editOpen: false,
-            selectedUsername: null,
-            selectedName: null,
-            selectedUser: null
-        });
-        this.props.enqueueSnackbar(error, {variant: 'error'});
+        setDeleteOpen(false);
+        setEditOpen(false);
+        setSelectedUser(null);
+        setSelectedName(null);
+        setSelectedUsername(null);
+        props.enqueueSnackbar(error, {variant: 'error'});
         if (callback) {
             callback();
         }
     }
+    const update = selectedUser && (!!selectedUser.id);
+    return (
+        <Fragment>
+            <Usertable rows={users} edit={initUpdateUser} delete={initDeleteUser}
+                       canUpdate={canUpdate} canDelete={canDelete} canSeeLogintime={canSeeLogintime} username={username}/>
+            <Modal isOpen={deleteOpen} handleClose={() => setDeleteOpen(false)} title="Delete user"
+                   handleAction={doDeleteUser} actionTitle="Delete">
+                <div>
+                    Vil du slette {selectedUsername + ": " + selectedName}?
+                </div>
+            </Modal>
+            <Modal isOpen={editOpen} handleClose={() => setEditOpen(false)} title={update ? "Update user": "Create User"}>
+                <UserForm initialValues={selectedUser} onSubmit={update ? doUpdateUser : doCreateUser} readOnly={readOnly}/>
+            </Modal>
+        </Fragment>
+    )
+});
 
-    render() {
-        if(!this.canRead) {
-            authenticationService.logout();
-        }
-        if (!authenticationService.isLoggedIn()) {
-            this.props.history.push("/login");
-        }
-        return (
-            <Fragment>
-                <Usertable rows={this.state.users} edit={this.initEdit} delete={this.initDelete}
-                           canUpdate={this.canUpdate} canDelete={this.canDelete} username={this.username}/>
-                <Modal isOpen={this.state.deleteOpen} handleClose={() => this.setState({deleteOpen: false})} title="Delete user"
-                       handleAction={this.doDelete} actionTitle="Delete">
-                    <div>
-                        Vil du slette {this.state.selectedUsername + ": " + this.state.selectedName}?
-                    </div>
-                </Modal>
-                <Modal isOpen={this.state.editOpen} handleClose={() => this.setState({editOpen: false})} title="Update user">
-                    <UserForm initialValues={this.state.selectedUser} onSubmit={this.doUpdateUser}/>
-                </Modal>
-            </Fragment>
-        )
-    }
-}
 
-export default withSnackbar(withRouter(UserComponent));
+export default withSnackbar(UserComponent);

@@ -43,11 +43,11 @@ const userService = {
     getUsers: () => {
         return axios.get(`${baseUrl}/user`);
     },
-    addUser: (formData) => {
-        return axios.post(`${baseUrl}/user`, formData);
+    addUser: (user) => {
+        return axios.post(`${baseUrl}/user`, user);
     },
-    updateUser: (formData) => {
-        return axios.put(`${baseUrl}/user`, formData);
+    updateUser: (user) => {
+        return axios.put(`${baseUrl}/user`, user);
     },
     resetPassword: (email) => {
         return axios.get(`${baseUrl}/user/resetpassword/${email}`);
@@ -55,22 +55,6 @@ const userService = {
 
     deleteUser(userName) {
         return axios.delete(`${baseUrl}/user/${userName}`);
-    },
-
-    createUserFormData(loggedInUsername, user) {
-        const formData = new FormData();
-        formData.append('currentUsername', loggedInUsername);
-        formData.append('firstName', user.firstName);
-        formData.append('middleName', user.middleName);
-        formData.append('lastName', user.lastName);
-        formData.append('username', user.username);
-        formData.append('email', user.email);
-        formData.append('phone', user.phone);
-        formData.append('role', user.role.id);
-        formData.append('active', JSON.stringify(user.active));
-        formData.append('notLocked', JSON.stringify(user.notLocked));
-        return formData;
     }
-
 };
 export default userService;

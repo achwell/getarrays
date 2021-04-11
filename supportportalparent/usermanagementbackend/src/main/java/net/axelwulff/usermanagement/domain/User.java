@@ -1,20 +1,20 @@
 package net.axelwulff.usermanagement.domain;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collection;
 
 import static javax.persistence.FetchType.EAGER;
-import static javax.persistence.FetchType.LAZY;
-import static javax.persistence.GenerationType.AUTO;
+import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
 public class User implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = AUTO)
+    @GeneratedValue(strategy = SEQUENCE, generator = "user_gen")
+    @SequenceGenerator(name = "user_gen", sequenceName = "user_seq")
     @Column(nullable = false, updatable = false)
     private Long id;
 
@@ -33,6 +33,7 @@ public class User implements Serializable {
     private String password;
 
     @Column(nullable = false, unique = true)
+    @Email
     private String email;
 
     @Column(nullable = false)

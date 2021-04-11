@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface UserService {
 
-    User register(String firstName, String middleName, String lastName, String username, String email) throws UserNotFoundException, UsernameExistException, EmailExistException;
+    User register(String firstName, String middleName, String lastName, String username, String email, String phone) throws UserNotFoundException, UsernameExistException, EmailExistException;
 
     List<User> getUsers();
 
@@ -15,9 +15,9 @@ public interface UserService {
 
     User findUserByEmail(String email);
 
-    User addNewUser(String firstName, String middleName, String lastName, String username, String email, String phone, Long roleId, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException, RoleNotFoundException;
+    User addNewUser(User user) throws UserNotFoundException, EmailExistException, UsernameExistException;
 
-    User updateUser(String currentUsername, String newFirstName, String newMiddleName, String newLastName, String newUsername, String newEmail, String newPhone, Long roleId, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException, RoleNotFoundException;
+    User updateUser(String currentUsername, User user) throws UserNotFoundException, UsernameExistException, EmailExistException;
 
     void deleteUser(String username);
 
