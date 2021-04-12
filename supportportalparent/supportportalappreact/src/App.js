@@ -16,6 +16,7 @@ import LoginComponent from "./components/login";
 import RegisterComponent from "./components/register";
 import UserComponent from "./components/user";
 import UserActions from "./components/useractions/useractions";
+import Systemstatus from "./components/systemstatus";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -29,6 +30,10 @@ const useStyles = makeStyles((theme) => ({
         flexGrow: 1,
         color: "rgba(0, 0, 0, 0.87)"
     },
+    caption: {
+        flexGrow: 1,
+        color: "rgba(0, 0, 0, 0.87)"
+    },
 }));
 
 function App(props) {
@@ -37,10 +42,12 @@ function App(props) {
     const canCreate = authenticationService.hasPrivilege("user:create");
 
     const userComponentRef = useRef();
+    const systemStatusComponentRef = useRef();
 
     const [isLoggedIn, setIsLoggedIn] = useState(authenticationService.isLoggedIn());
 
     const userProfile = () => userComponentRef.current.userProfile();
+    const updateSystemStatusComponent = () => systemStatusComponentRef.current.reloadData(false);
 
     return (
         <Router>
@@ -49,8 +56,8 @@ function App(props) {
                     <TypoGraphy variant="h4" className={classes.h4}>
                         User Management Portal
                     </TypoGraphy>
-                    {canCreate &&
-                    <IconButton
+                    <Systemstatus ref={systemStatusComponentRef} classes={classes}/>
+                    {canCreate && <IconButton
                         edge="start"
                         className={classes.button}
                         color="primary"
@@ -60,16 +67,20 @@ function App(props) {
                         <AddIcon/>
                     </IconButton>
                     }
-                    <IconButton
+                    {isLoggedIn && <IconButton
                         edge="start"
                         className={classes.button}
                         color="primary"
-                        aria-label="Reload User"
-                        onClick={() => userComponentRef.current.reload()}
+                        aria-label="Reload"
+                        onClick={() => {
+                            userComponentRef.current.reload();
+                            updateSystemStatusComponent();
+                        }}
                     >
                         <RefreshIcon/>
                     </IconButton>
-                        <UserActions isLoggedIn={isLoggedIn} logOutAction={setIsLoggedIn} profileAction={userProfile}/>
+                    }
+                    <UserActions isLoggedIn={isLoggedIn} logOutAction={setIsLoggedIn} profileAction={userProfile}/>
                 </Toolbar>
             </AppBar>
             <Switch>
