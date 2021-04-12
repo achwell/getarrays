@@ -211,7 +211,7 @@ const UserComponent = forwardRef((props, ref) => {
                    title={update ? "Update user" : "Create User"}
                    handleSubmit={() => userFormRef.current.save()}
                    submitTitle={update ? "Update" : "Create"}
-                   submitReadOnly={validationErrors}>
+                   submitReadOnly={!validationErrors}>
                 <UserForm ref={userFormRef}
                           initialValues={selectedUser}
                           onSubmit={update ? doUpdateUser : doCreateUser}

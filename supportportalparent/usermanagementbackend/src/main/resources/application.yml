@@ -3,6 +3,18 @@ server:
   error:
     path: /error
 
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  trace:
+    http:
+      enabled: true
+
 spring:
   datasource:
     url: "jdbc:mysql://localhost:3306/supportportal"
@@ -30,3 +42,9 @@ app:
 logging:
   level:
     web: debug
+
+info:
+  app:
+    name: User Manager Application
+    description: This is an application to manage users
+    version: 1.0

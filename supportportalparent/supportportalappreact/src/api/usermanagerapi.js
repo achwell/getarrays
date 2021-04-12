@@ -18,31 +18,3 @@ const refreshAuthLogic = failedRequest => axios.post(`${baseUrl}/token/refresh`)
 
 // Instantiate the interceptor (you can chain it as it returns the axios instance)
 createAuthRefreshInterceptor(axios, refreshAuthLogic);
-
-//functions to make api calls
-const userService = {
-    getUsers: () => {
-        return axios.get(`${baseUrl}/user`);
-    },
-    addUser: (user) => {
-        return axios.post(`${baseUrl}/user`, user);
-    },
-    updateUser: (user) => {
-        return axios.put(`${baseUrl}/user`, user);
-    },
-    resetPassword: (email) => {
-        return axios.get(`${baseUrl}/user/resetpassword/${email}`);
-    },
-
-    deleteUser(userName) {
-        return axios.delete(`${baseUrl}/user/${userName}`);
-    },
-    addUsersToLocalCache(users) {
-        localStorage.setItem('users', JSON.stringify(users));
-    },
-    getUsersFromLocalCache() {
-        const users = localStorage.getItem('users');
-        return users ? JSON.parse(users) : [];
-    }
-};
-export default userService;

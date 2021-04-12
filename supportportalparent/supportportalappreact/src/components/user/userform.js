@@ -107,8 +107,9 @@ class UserForm extends Component {
 
     validateForm = () => {
         const {username, firstName, lastName, email, phone} = this.state.fieldErrors;
-        this.setState({formValid: !username && !firstName && !lastName && !email && !phone});
-        this.props.setValidationErrors(this.state.formValid);
+        const formValid = !username && !firstName && !lastName && !email && !phone;
+        this.setState({formValid});
+        this.props.setValidationErrors(formValid);
     }
 
     save = () => {

@@ -3765,6 +3765,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios-auth-refresh@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "axios-auth-refresh@npm:3.1.0"
+  peerDependencies:
+    axios: ~0.18.0 || ~0.19.1 || ~0.20.0 || ~0.21.1
+  checksum: 13165d6ed9d7b2a6959d0c30cbeb4611cbefdab2006db7d392cd4092d02252e453c38d0251c023251b1efb6d3dafc5e18119f9e86f355b29e2be4641223445a4
+  languageName: node
+  linkType: hard
+
 "axios@npm:^0.21.1":
   version: 0.21.1
   resolution: "axios@npm:0.21.1"
@@ -14959,6 +14968,7 @@ resolve@^2.0.0-next.3:
     "@typescript-eslint/eslint-plugin": ^4.22.0
     "@typescript-eslint/parser": ^4.22.0
     axios: ^0.21.1
+    axios-auth-refresh: ^3.1.0
     babel-eslint: ^10.1.0
     date-fns: ^2.20.2
     eslint: ^7.24.0
