@@ -17,6 +17,9 @@ const UserComponent = forwardRef((props, ref) => {
             },
             userProfile() {
                 initUserProfile();
+            },
+            reload() {
+                reloadUsersAndRoles();
             }
         }),
     )
@@ -62,6 +65,11 @@ const UserComponent = forwardRef((props, ref) => {
                 setUsers(users);
             })
             .catch(e => handleError(e))
+    }
+
+    const reloadUsersAndRoles = () => {
+        roleService.loadRoles();
+        loadData(true);
     }
 
     const initCreateUser = () => {

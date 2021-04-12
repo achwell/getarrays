@@ -6,6 +6,7 @@ import {makeStyles} from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import IconButton from '@material-ui/core/IconButton';
 import AddIcon from '@material-ui/icons/Add';
+import RefreshIcon from '@material-ui/icons/Refresh';
 import Toolbar from '@material-ui/core/Toolbar'
 import TypoGraphy from '@material-ui/core/Typography'
 
@@ -59,7 +60,16 @@ function App(props) {
                         <AddIcon/>
                     </IconButton>
                     }
-                    <UserActions isLoggedIn={isLoggedIn} logInAction={setIsLoggedIn} logOutAction={setIsLoggedIn} profileAction={userProfile}/>
+                    <IconButton
+                        edge="start"
+                        className={classes.button}
+                        color="primary"
+                        aria-label="Reload User"
+                        onClick={() => userComponentRef.current.reload()}
+                    >
+                        <RefreshIcon/>
+                    </IconButton>
+                        <UserActions isLoggedIn={isLoggedIn} logInAction={setIsLoggedIn} logOutAction={setIsLoggedIn} profileAction={userProfile}/>
                 </Toolbar>
             </AppBar>
             <Switch>
