@@ -31,7 +31,7 @@ class LoginComponent extends Component {
                 authenticationService.addUserToLocalCache(response.data);
                 userService.getUsers()
                     .then(userResponse => {
-                        localStorage.setItem('users', JSON.stringify(userResponse.data));
+                        userService.addUsersToLocalCache(userResponse.data);
                         roleService.loadRoles();
                         if (this.props.callBack) {
                             this.props.callBack(true);

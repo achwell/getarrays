@@ -43,12 +43,6 @@ const userService = {
     getUsers: () => {
         return axios.get(`${baseUrl}/user`);
     },
-    loadUsers: () => {
-        axios.get(`${baseUrl}/user`)
-            .then(response => {
-                localStorage.setItem('users', JSON.stringify(response.data));
-            })
-    },
     addUser: (user) => {
         return axios.post(`${baseUrl}/user`, user);
     },
@@ -61,6 +55,9 @@ const userService = {
 
     deleteUser(userName) {
         return axios.delete(`${baseUrl}/user/${userName}`);
+    },
+    addUsersToLocalCache(users) {
+        localStorage.setItem('users', JSON.stringify(users));
     },
     getUsersFromLocalCache() {
         const users = localStorage.getItem('users');

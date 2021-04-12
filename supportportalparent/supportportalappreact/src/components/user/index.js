@@ -53,13 +53,16 @@ const UserComponent = forwardRef((props, ref) => {
     const username = authenticationService.getUsername();
 
     const loadData = showMessage => {
-        userService.loadUsers();
-        roleService.loadRoles();
-        const users = userService.getUsersFromLocalCache();
-        if (showMessage) {
-            props.enqueueSnackbar(users.length + " users loaded.", {variant: 'success'});
-        }
-        setUsers(users);
+        userService.getUsers()
+            .then(response => {
+                userService.addUsersToLocalCache(response.data);
+                roleService.loadRoles();
+                const users = userService.getUsersFromLocalCache();
+                if (showMessage) {
+                    props.enqueueSnackbar(users.length + " users loaded.", {variant: 'success'});
+                }
+                setUsers(users);
+            })
     }
 
     const reloadUsersAndRoles = () => {
@@ -206,9 +209,9 @@ const UserComponent = forwardRef((props, ref) => {
             <Modal isOpen={editOpen}
                    handleClose={() => setEditOpen(false)}
                    title={update ? "Update user" : "Create User"}
-                   handleSubmit={() => userFormRef.current.doSave()}
+                   handleSubmit={() => userFormRef.current.save()}
                    submitTitle={update ? "Update" : "Create"}
-                   submitReadOnly={!validationErrors}>
+                   submitReadOnly={validationErrors}>
                 <UserForm ref={userFormRef}
                           initialValues={selectedUser}
                           onSubmit={update ? doUpdateUser : doCreateUser}
