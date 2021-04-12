@@ -1,4 +1,4 @@
-import React, {forwardRef, Fragment, useEffect, useImperativeHandle, useRef, useState} from "react";
+import React, {forwardRef, Fragment, useImperativeHandle, useRef, useState} from "react";
 import {useHistory} from "react-router-dom";
 import {withSnackbar} from "notistack";
 import authenticationService from "../../service/autehentication.service";
@@ -24,7 +24,8 @@ const UserComponent = forwardRef((props, ref) => {
         }),
     )
 
-    const [users, setUsers] = useState([]);
+    const [users, setUsers] = useState(userService.getUsersFromLocalCache());
+    const [validationErrors, setValidationErrors] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [selectedUsername, setSelectedUsername] = useState(null);
@@ -46,29 +47,22 @@ const UserComponent = forwardRef((props, ref) => {
         history.push("/login");
     }
 
-    useEffect(() => {
-        loadData(false);
-    }, []);
-
     const userFormRef = useRef();
 
     const readOnly = (selectedUsername && !canUpdate) || (!selectedUsername && !canCreate);
     const username = authenticationService.getUsername();
 
     const loadData = showMessage => {
-        userService.getUsers()
-            .then(response => {
-                const users = response.data;
-                if (showMessage) {
-                    props.enqueueSnackbar(users.length + " users loaded.", {variant: 'success'});
-                }
-                setUsers(users);
-            })
-            .catch(e => handleError(e))
+        userService.loadUsers();
+        roleService.loadRoles();
+        const users = userService.getUsersFromLocalCache();
+        if (showMessage) {
+            props.enqueueSnackbar(users.length + " users loaded.", {variant: 'success'});
+        }
+        setUsers(users);
     }
 
     const reloadUsersAndRoles = () => {
-        roleService.loadRoles();
         loadData(true);
     }
 
@@ -78,6 +72,7 @@ const UserComponent = forwardRef((props, ref) => {
             const role = roleService.getRoles().filter(r => r.name === 'ROLE_USER')[0];
             const user = {
                 id: null,
+                password: Math.random().toString(16).substr(2, 8),
                 firstName: "",
                 middleName: "",
                 lastName: "",
@@ -182,24 +177,45 @@ const UserComponent = forwardRef((props, ref) => {
         setSelectedUser(null);
         setSelectedName(null);
         setSelectedUsername(null);
-        props.enqueueSnackbar(error, {variant: 'error'});
+        props.enqueueSnackbar(error, {variant: 'error', persist: true,});
         if (callback) {
             callback();
         }
     }
     const update = selectedUser && (!!selectedUser.id);
+
     return (
         <Fragment>
-            <Usertable rows={users} edit={initUpdateUser} delete={initDeleteUser}
-                       canUpdate={canUpdate} canDelete={canDelete} canSeeLogintime={canSeeLogintime} username={username}/>
-            <Modal isOpen={deleteOpen} handleClose={() => setDeleteOpen(false)} title="Delete user"
-                   handleAction={doDeleteUser} actionTitle="Delete">
+            <Usertable rows={users}
+                       edit={initUpdateUser}
+                       delete={initDeleteUser}
+                       canUpdate={canUpdate}
+                       canDelete={canDelete}
+                       canSeeLogintime={canSeeLogintime}
+                       username={username}/>
+            <Modal isOpen={deleteOpen}
+                   handleClose={() => setDeleteOpen(false)}
+                   title="Delete user"
+                   handleSubmit={doDeleteUser}
+                   submitTitle="Delete"
+                   submitReadOnly={canDelete}>
                 <div>
                     Vil du slette {selectedUsername + ": " + selectedName}?
                 </div>
             </Modal>
-            <Modal isOpen={editOpen} handleClose={() => setEditOpen(false)} title={update ? "Update user" : "Create User"} handleAction={() => userFormRef.current.doSave()} actionTitle={update ? "Update" : "Create"}>
-                <UserForm ref={userFormRef} initialValues={selectedUser} onSubmit={update ? doUpdateUser : doCreateUser} readOnly={readOnly}/>
+            <Modal isOpen={editOpen}
+                   handleClose={() => setEditOpen(false)}
+                   title={update ? "Update user" : "Create User"}
+                   handleSubmit={() => userFormRef.current.doSave()}
+                   submitTitle={update ? "Update" : "Create"}
+                   submitReadOnly={!validationErrors}>
+                <UserForm ref={userFormRef}
+                          initialValues={selectedUser}
+                          onSubmit={update ? doUpdateUser : doCreateUser}
+                          readOnly={readOnly}
+                          setValidationErrors={setValidationErrors}
+                          currentUserId={authenticationService.getUserFromLocalCache().id}
+                />
             </Modal>
         </Fragment>
     )

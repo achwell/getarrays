@@ -74,13 +74,13 @@ public class UserResource extends ExceptionHandling {
     }
 
     @PostMapping
-    public ResponseEntity<User> addNewUser(@RequestBody User user) throws UserNotFoundException, UsernameExistException, EmailExistException {
+    public ResponseEntity<User> addNewUser(@Valid @RequestBody User user) throws UserNotFoundException, UsernameExistException, EmailExistException {
         User newUser = userService.addNewUser(user);
         return new ResponseEntity<>(newUser, CREATED);
     }
 
     @PutMapping
-    public ResponseEntity<User> update(@RequestBody User user) throws UserNotFoundException, UsernameExistException, EmailExistException {
+    public ResponseEntity<User> update(@Valid @RequestBody User user) throws UserNotFoundException, UsernameExistException, EmailExistException {
         User updatedUser = userService.updateUser(user.getUsername(), user);
         return new ResponseEntity<>(updatedUser, OK);
     }

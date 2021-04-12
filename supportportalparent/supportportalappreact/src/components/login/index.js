@@ -7,6 +7,7 @@ import {withSnackbar} from "notistack";
 
 import authenticationService from "../../service/autehentication.service";
 import roleService from "../../service/role.service";
+import userService from "../../service/user.service";
 
 class LoginComponent extends Component {
 
@@ -28,21 +29,27 @@ class LoginComponent extends Component {
                 const token = response.headers["jwt-token"];
                 authenticationService.saveToken(token);
                 authenticationService.addUserToLocalCache(response.data);
-                roleService.loadRoles();
-                if (this.props.callBack) {
-                    this.props.callBack(true);
-                }
-                this.props.history.push('/user/management');
+                userService.getUsers()
+                    .then(userResponse => {
+                        localStorage.setItem('users', JSON.stringify(userResponse.data));
+                        roleService.loadRoles();
+                        if (this.props.callBack) {
+                            this.props.callBack(true);
+                        }
+                        this.props.history.push('/user/management');
+                    }).catch(userError => this.handleError(userError));
             })
-            .catch(e => {
-                let error = "";
-                if (e.response) {
-                    error = e.response.data.message;
-                } else if (e.message) {
-                    error = e.message;
-                }
-                this.props.enqueueSnackbar(error, {variant: 'error'});
-            });
+            .catch(e => this.handleError(e));
+    }
+
+    handleError(e) {
+        let error = "";
+        if (e.response) {
+            error = e.response.data.message;
+        } else if (e.message) {
+            error = e.message;
+        }
+        this.props.enqueueSnackbar(error, {variant: 'error'});
     }
 
     render() {

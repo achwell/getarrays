@@ -12,7 +12,7 @@ import authenticationService from "../../service/autehentication.service";
 
 function UserActions(props) {
 
-    const [isLoggedIn, setIsLoggedIn] = useState(props.isLoggedIn);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     const [anchorEl, setAnchorEl] = React.useState(null);
 
@@ -28,26 +28,22 @@ function UserActions(props) {
 
     const history = useHistory();
 
+    const {logOutAction, profileAction} = props;
+
     const doLogout = () => {
         authenticationService.logout();
         setIsLoggedIn(false);
-        if(props.logOutAction) {
-            props.logOutAction(false);
-        }
+        logOutAction(false);
         history.push("/login");
     };
 
     const doLogin = () => {
         history.push("/login");
-        if(props.logInAction) {
-            props.logInAction(true);
-        }
-        setIsLoggedIn(true);
     }
 
-    const profileAction = () => {
+    const doProfileAction = () => {
         setAnchorEl(null);
-        props.profileAction();
+        profileAction();
     };
 
     if(!isLoggedIn) {
@@ -66,7 +62,7 @@ function UserActions(props) {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
             >
-                <MenuItem onClick={profileAction}>My account</MenuItem>
+                <MenuItem onClick={doProfileAction}>My account</MenuItem>
                 <MenuItem onClick={doLogout}>Log Out</MenuItem>
             </Menu>
         </div>
@@ -75,7 +71,6 @@ function UserActions(props) {
 
 UserActions.propTypes = {
     isLoggedIn: PropTypes.bool.isRequired,
-    logInAction: PropTypes.func.isRequired,
     logOutAction: PropTypes.func.isRequired,
     profileAction: PropTypes.func.isRequired
 }

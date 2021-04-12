@@ -2,7 +2,9 @@ package net.axelwulff.usermanagement.domain;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
-import java.io.Serializable;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -10,7 +12,7 @@ import static javax.persistence.FetchType.EAGER;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
-public class User implements Serializable {
+public class User extends BaseDomainObject {
 
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = "user_gen")
@@ -19,24 +21,30 @@ public class User implements Serializable {
     private Long id;
 
     @Column(nullable = false)
+    @NotEmpty
     private String firstName;
 
     private String middleName;
 
     @Column(nullable = false)
+    @NotEmpty
     private String lastName;
 
     @Column(nullable = false, unique = true)
+    @Pattern(regexp = "[a-zA-Z0-9]{7,}")
     private String username;
 
     @Column(nullable = false)
+    @NotEmpty
     private String password;
 
     @Column(nullable = false, unique = true)
     @Email
+    @NotEmpty
     private String email;
 
     @Column(nullable = false)
+    @NotEmpty
     private String phone;
 
     private LocalDateTime lastLoginDate;
@@ -46,6 +54,7 @@ public class User implements Serializable {
     private LocalDate joinDate;
 
     @ManyToOne(fetch = EAGER)
+    @NotNull
     private Role role;
 
     @Column()

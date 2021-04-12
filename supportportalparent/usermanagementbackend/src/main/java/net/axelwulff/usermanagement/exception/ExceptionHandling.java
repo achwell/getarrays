@@ -1,10 +1,14 @@
 package net.axelwulff.usermanagement.exception;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.axelwulff.usermanagement.resource.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.error.ErrorController;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,14 +16,21 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.persistence.NoResultException;
+import javax.validation.ValidationException;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -81,7 +92,20 @@ public class ExceptionHandling implements ErrorController {
         return createHttpResponse(BAD_REQUEST, exception.getMessage());
     }
 
-//    @ExceptionHandler(NoHandlerFoundException.class)
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<HttpResponse> validationException(ValidationException exception) {
+        return createHttpResponse(BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<HttpResponse> methodArgumentNotValidException(MethodArgumentNotValidException exception) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        exception.getBindingResult().getFieldErrors().forEach(e -> response.put(e.getField(), e.getDefaultMessage()));
+        return createHttpResponse(BAD_REQUEST, objectMapper.writeValueAsString(response));
+    }
+
+    //    @ExceptionHandler(NoHandlerFoundException.class)
 //    public ResponseEntity<HttpResponse> noHandlerFoundException(NoHandlerFoundException exception) {
 //        LOGGER.error("NoHandlerFoundException", exception);
 //        return createHttpResponse(BAD_REQUEST, "This page was not found");
@@ -117,7 +141,7 @@ public class ExceptionHandling implements ErrorController {
     }
 
     private ResponseEntity<HttpResponse> createHttpResponse(HttpStatus httpStatus, String message) {
-        return new ResponseEntity<>(new HttpResponse(httpStatus, message.toUpperCase()), httpStatus);
+        return new ResponseEntity<>(new HttpResponse(httpStatus, message), httpStatus);
     }
 
     /**

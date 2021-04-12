@@ -69,7 +69,7 @@ function App(props) {
                     >
                         <RefreshIcon/>
                     </IconButton>
-                        <UserActions isLoggedIn={isLoggedIn} logInAction={setIsLoggedIn} logOutAction={setIsLoggedIn} profileAction={userProfile}/>
+                        <UserActions isLoggedIn={isLoggedIn} logOutAction={setIsLoggedIn} profileAction={userProfile}/>
                 </Toolbar>
             </AppBar>
             <Switch>

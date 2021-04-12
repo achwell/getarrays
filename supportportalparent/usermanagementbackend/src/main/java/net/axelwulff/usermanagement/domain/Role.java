@@ -1,14 +1,13 @@
 package net.axelwulff.usermanagement.domain;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Collection;
 
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.AUTO;
 
 @Entity
-public class Role implements Serializable {
+public class Role extends BaseDomainObject {
 
     @Id
     @GeneratedValue(strategy = AUTO)

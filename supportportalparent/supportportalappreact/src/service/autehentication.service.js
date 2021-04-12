@@ -52,6 +52,8 @@ const authenticationService = {
     },
     logout: () => {
         localStorage.removeItem('user');
+        localStorage.removeItem('users');
+        localStorage.removeItem('roles');
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
     },
@@ -66,7 +68,7 @@ const authenticationService = {
 
     getUserFromLocalCache() {
         const user = localStorage.getItem('user');
-        return user ? JSON.parse(user) : null;
+        return user ? JSON.parse(user) : {};
     },
 
     getToken() {
