@@ -34,6 +34,9 @@ const useStyles = makeStyles((theme) => ({
         flexGrow: 1,
         color: "rgba(0, 0, 0, 0.87)"
     },
+    error: {
+        color: "rgba(255, 0, 0, 1)"
+    }
 }));
 
 function App(props) {

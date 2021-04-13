@@ -86,7 +86,7 @@ function Usertable(props) {
     ]
 
     return (
-        <div style={{height: 400, width: '100%'}}>
+        <div style={{height: '90vh', width: '100%'}}>
             <DataGrid rows={props.rows} columns={columns} pageSize={25} size="small"
                       allowColumnResizing={true} selection={{mode: 'single'}}/>
         </div>

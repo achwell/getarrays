@@ -49,8 +49,8 @@ const UserComponent = forwardRef((props, ref) => {
 
     const userFormRef = useRef();
 
-    const readOnly = (selectedUsername && !canUpdate) || (!selectedUsername && !canCreate);
     const username = authenticationService.getUsername();
+    const readOnly = !selectedUsername ? true : (selectedUsername === username ? false : !canUpdate && !canCreate);
 
     const loadData = showMessage => {
         userService.getUsers()
@@ -133,7 +133,13 @@ const UserComponent = forwardRef((props, ref) => {
 
     const doUpdateUser = (user) => {
         userService.updateUser(user)
-            .then(response => handleResponseOk("updated"))
+            .then(response => {
+                //If edit profile
+                if(user.username === authenticationService.getUsername()) {
+                    authenticationService.addUserToLocalCache(user);
+                }
+                handleResponseOk("updated");
+            })
             .catch(e => handleError(e, () => {
                 setDeleteOpen(false);
                 setEditOpen(false);

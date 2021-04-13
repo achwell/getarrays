@@ -8,7 +8,8 @@ const INITIAL_STATE = {
     dbStatus: 'DOWN',
     systemHealth: {},
     systemCpu: 0,
-    timestamp: 0
+    timestamp: 0,
+    intervalID: null
 };
 
 class Systemstatus extends React.Component {
@@ -16,15 +17,20 @@ class Systemstatus extends React.Component {
     state = INITIAL_STATE
 
     componentDidMount() {
+        if(this.state.intervalID) {
+            clearInterval(this.state.intervalID);
+        }
         this.reloadData(true);
     }
 
     componentWillUnmount() {
-
+        if(this.state.intervalID) {
+            clearInterval(this.state.intervalID);
+        }
     }
 
     updateTime = () => {
-        setInterval(() => {
+        return setInterval(() => {
             this.setState((prevState, props) => ({timestamp: prevState.timestamp + 1}));
         }, 1000);
     }
@@ -35,7 +41,8 @@ class Systemstatus extends React.Component {
         const systemCpu = await this.getSystemCPU();
         this.setState({systemStatus, dbStatus, diskSpace, timestamp, systemCpu});
         if(updateTime) {
-            this.updateTime();
+            const intervalID = this.updateTime();
+            this.setState({intervalID});
         }
     }
 
@@ -81,25 +88,26 @@ class Systemstatus extends React.Component {
     }
 
     render() {
-        if(!authenticationService.hasPrivilege("systemstatus")) {
+        if(!authenticationService.hasPrivilege("system:status")) {
             return null;
         }
+        const {timestamp, diskSpace, dbStatus, systemStatus, systemCpu} = this.state;
         return (
             <>
-                <TypoGraphy variant="caption" className={this.props.classes.caption}>
-                    System: {this.state.systemStatus}
+                <TypoGraphy variant="caption" className={`${this.props.classes.caption} ${systemStatus.endsWith("UP") ? "" : this.props.classes.error}`}>
+                    System: {systemStatus}
                 </TypoGraphy>
-                <TypoGraphy variant="caption" className={this.props.classes.caption}>
-                    DB: {this.state.dbStatus}
+                <TypoGraphy variant="caption" className={`${this.props.classes.caption} ${dbStatus.endsWith("UP") ? "" : this.props.classes.error}`}>
+                    DB: {dbStatus}
                 </TypoGraphy>
-                <TypoGraphy variant="caption" className={this.props.classes.caption}>
+                <TypoGraphy variant="caption" className={`${this.props.classes.caption} ${Math.round(diskSpace / 1024 / 1024 / 1024) > 1 ? "" : this.props.classes.error}`}>
                     Disk Space: {this.formatBytes(this.state.diskSpace)}
                 </TypoGraphy>
-                <TypoGraphy variant="caption" className={this.props.classes.caption}>
-                    Processors: {this.state.systemCpu}
+                <TypoGraphy variant="caption" className={`${this.props.classes.caption} ${systemCpu > 2 ? "" : this.props.classes.error}`}>
+                    Processors: {systemCpu}
                 </TypoGraphy>
                 <TypoGraphy variant="caption" className={this.props.classes.caption}>
-                    Up Time: {this.formateUptime(this.state.timestamp)}
+                    Up Time: {this.formateUptime(timestamp)}
                 </TypoGraphy>
             </>
         );

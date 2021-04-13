@@ -73,6 +73,42 @@ class LoginComponent extends Component {
                         <Link to="/register">Sign Up</Link>
                     </div>
                 </form>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Password</th>
+                            <th>Role</th>
+                            <th>Privileges</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>roleuser</td>
+                        <td>password</td>
+                        <td>USER</td>
+                        <td>user:read</td>
+                    </tr>
+                    <tr>
+                        <td>managerauthorities</td>
+                        <td>password</td>
+                        <td>MANAGER_AUTHORITIES</td>
+                        <td>user:read, user:update</td>
+                    </tr>
+                    <tr>
+                        <td>adminauthorities</td>
+                        <td>password</td>
+                        <td>ROLE_ADMIN_AUTHORITIES</td>
+                        <td>user:read, user:update, user:create, user:seelogintime, system:status</td>
+                    </tr>
+                    <tr>
+                        <td>superadminauthorities</td>
+                        <td>password</td>
+                        <td>SUPER_ADMIN_AUTHORITIES</td>
+                        <td>user:read, user:update, user:create, user:delete, user:seelogintime, system:status</td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         )
     }
